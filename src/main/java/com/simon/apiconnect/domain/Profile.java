@@ -1,19 +1,33 @@
 package com.simon.apiconnect.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.springframework.stereotype.Component;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
 
-@Component
+
+@Entity
+@Table(name="profile")
 public class Profile {
 
+	@Id
+	@GeneratedValue
 	private long id;
+	
+	@NotBlank
 	private String name;
-	private List<ApiConnection> connections;
+	
+	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.LAZY)
+	private Set<ApiConnection> connections = new HashSet<>();
 	
 	public Profile() {
-		this.connections = new ArrayList<>();
 	}
 
 	public Profile(long id, String name) {
@@ -51,11 +65,11 @@ public class Profile {
 		this.name = name;
 	}
 
-	public List<ApiConnection> getConnections() {
+	public Set<ApiConnection> getConnections() {
 		return connections;
 	}
 
-	public void setConnections(List<ApiConnection> connections) {
+	public void setConnections(Set<ApiConnection> connections) {
 		this.connections = connections;
 	}
 	
