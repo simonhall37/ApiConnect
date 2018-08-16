@@ -1,7 +1,16 @@
 package com.simon.apiconnect.domain;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="apiconnection")
 public class ApiConnection {
 
+	@Id
+	@GeneratedValue
 	private long id;
 	private String name;
 	private String baseURL;
@@ -9,8 +18,9 @@ public class ApiConnection {
 	private String credKey;
 	private String credValue;
 	
-	public ApiConnection (long id,String name, String baseURL, CredentialType type, String credKey, String credValue){
-		this.id = id;
+	public ApiConnection () {}
+	
+	public ApiConnection (String name, String baseURL, CredentialType type, String credKey, String credValue){
 		this.name = name;
 		this.baseURL = baseURL;
 		this.type = type;
@@ -65,4 +75,5 @@ public class ApiConnection {
 	public void setName(String name) {
 		this.name = name;
 	}
+
 }
