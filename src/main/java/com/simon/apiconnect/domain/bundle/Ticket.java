@@ -2,7 +2,6 @@ package com.simon.apiconnect.domain.bundle;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class Ticket implements Comparable<Ticket> {
