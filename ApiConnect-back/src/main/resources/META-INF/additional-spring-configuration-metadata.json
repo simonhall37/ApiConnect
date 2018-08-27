@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "cache.output.dir",
+  "type": "java.lang.String",
+  "description": "Location where cached data can be stored on the file system"
+}]}
