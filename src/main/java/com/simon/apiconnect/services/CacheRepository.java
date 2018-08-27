@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +17,8 @@ import com.simon.apiconnect.domain.cache.ApiCache;
 public class CacheRepository {
 
 	private final List<ApiCache> caches;
-	private final String OUT_DIR = "C:\\tech-work\\data\\redmine\\cacheData\\";
+	@Value( "${cache.output.dir}")
+	private String OUT_DIR;
 	private static final Logger log = LoggerFactory.getLogger(CacheRepository.class);
 	private final ObjectMapper om = new ObjectMapper();
 	
