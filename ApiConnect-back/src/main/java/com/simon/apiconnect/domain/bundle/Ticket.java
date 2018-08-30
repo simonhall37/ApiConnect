@@ -3,6 +3,7 @@ package com.simon.apiconnect.domain.bundle;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Ticket implements Comparable<Ticket> {
 
@@ -37,7 +38,6 @@ public class Ticket implements Comparable<Ticket> {
 				 wrapinQuotes("organisation",false) +
 				 wrapinQuotes("requester",false) +
 				 wrapinQuotes("type",false) +
-				 wrapinQuotes("priority",false) +
 				 wrapinQuotes("created",false) +
 				 wrapinQuotes("updated",false) +
 				 wrapinQuotes("status",false) +
@@ -52,20 +52,32 @@ public class Ticket implements Comparable<Ticket> {
 		else return "\"" + input + "\",";
 	}
 	
-	public List<Object> generateContent() {
+	public List<Object> generateContent(Set<TimeCorrection> corrections) {
 		List<Object> out = new ArrayList<>();
 		out.add(this.id);
 		out.add(this.subject);
 		out.add(this.organisation.getName());
 		out.add(this.requester.getName());
 		out.add(this.type);
-		out.add(priority);
 		out.add(this.created);
 		out.add(this.updated);
 		out.add(this.status);
-		out.add(this.effort);
-		out.add(Math.round(this.effort * 100.0 / 60.0) / 100.0);
+		double temp = correctTime(corrections);
+		out.add(temp);
+		out.add(Math.round(temp * 100.0 / 60.0) / 100.0);
 		return out;
+	}
+	
+	public Double correctTime(Set<TimeCorrection> corrections) {
+		if (corrections!=null) {
+			for (TimeCorrection tc : corrections) {
+				if (tc.getTicketId() == this.id) {
+					System.out.println("Correcting ticket " + id);
+					return tc.getNewEffort();
+				}
+			}
+		}
+		return this.effort;
 	}
 	
 	@Override
