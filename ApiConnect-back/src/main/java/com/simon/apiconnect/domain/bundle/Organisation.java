@@ -1,7 +1,5 @@
 package com.simon.apiconnect.domain.bundle;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,18 +20,24 @@ public class Organisation {
 	private long id;
 	
 	private long zendeskId;
-	private LocalDateTime lastLogged;
+	private String lastLogged;
 	private String accountManager;
-	private LocalDate movedToSupport;
-	private LocalDate bundleStarts;
-	private LocalDate bundleEnds;
+	private String movedToSupport;
+	private String bundleStarts;
+	private String bundleEnds;
 	private int bundleSize;
-	private LocalDate lastUpdated;
+	private String lastUpdated;
 	
 	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.LAZY)
 	private Set<TimeCorrection> corrections = new HashSet<>();
 	
 	public Organisation() {}
+	
+	public Organisation(long id,long zendeskId,String bundleStarts) {
+		this.id = id;
+		this.zendeskId = zendeskId;
+		this.bundleStarts = bundleStarts;
+	}
 
 	/* getters and setters */
 	public long getZendeskId() {
@@ -42,10 +46,10 @@ public class Organisation {
 	public void setZendeskId(long zendeskId) {
 		this.zendeskId = zendeskId;
 	}
-	public LocalDateTime getLastLogged() {
+	public String getLastLogged() {
 		return lastLogged;
 	}
-	public void setLastLogged(LocalDateTime lastLogged) {
+	public void setLastLogged(String lastLogged) {
 		this.lastLogged = lastLogged;
 	}
 	public String getAccountManager() {
@@ -54,22 +58,22 @@ public class Organisation {
 	public void setAccountManager(String accountManager) {
 		this.accountManager = accountManager;
 	}
-	public LocalDate getMovedToSupport() {
+	public String getMovedToSupport() {
 		return movedToSupport;
 	}
-	public void setMovedToSupport(LocalDate movedToSupport) {
+	public void setMovedToSupport(String movedToSupport) {
 		this.movedToSupport = movedToSupport;
 	}
-	public LocalDate getBundleStarts() {
+	public String getBundleStarts() {
 		return bundleStarts;
 	}
-	public void setBundleStarts(LocalDate bundleStarts) {
+	public void setBundleStarts(String bundleStarts) {
 		this.bundleStarts = bundleStarts;
 	}
-	public LocalDate getBundleEnds() {
+	public String getBundleEnds() {
 		return bundleEnds;
 	}
-	public void setBundleEnds(LocalDate bundleEnds) {
+	public void setBundleEnds(String bundleEnds) {
 		this.bundleEnds = bundleEnds;
 	}
 	public int getBundleSize() {
@@ -78,10 +82,10 @@ public class Organisation {
 	public void setBundleSize(int bundleSize) {
 		this.bundleSize = bundleSize;
 	}
-	public LocalDate getLastUpdated() {
+	public String getLastUpdated() {
 		return lastUpdated;
 	}
-	public void setLastUpdated(LocalDate lastUpdated) {
+	public void setLastUpdated(String lastUpdated) {
 		this.lastUpdated = lastUpdated;
 	}
 	public Set<TimeCorrection> getCorrections() {
