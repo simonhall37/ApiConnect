@@ -8,8 +8,8 @@ public class Ticket implements Comparable<Ticket> {
 
 	private long id;
 	private String subject;
-	private long requesterId;
-	private long organisationId;
+	private User requester;
+	private Org organisation;
 	private String type;
 	private String priority;
 	private String created;
@@ -20,12 +20,22 @@ public class Ticket implements Comparable<Ticket> {
 
 	public Ticket() {
 	}
+	
+	public Ticket addUser(User user) {
+		this.requester = user;
+		return this;
+	}
+	
+	public Ticket addOrg(Org org) {
+		setOrganisation(org);
+		return this;
+	}
 
-	public String getHeader() {
+	public String generateHeader() {
 		return wrapinQuotes("id",false) + 
 				 wrapinQuotes("subject",false) +
 				 wrapinQuotes("organisation",false) +
-				 wrapinQuotes("requesterId",false) +
+				 wrapinQuotes("requester",false) +
 				 wrapinQuotes("type",false) +
 				 wrapinQuotes("priority",false) +
 				 wrapinQuotes("created",false) +
@@ -42,12 +52,12 @@ public class Ticket implements Comparable<Ticket> {
 		else return "\"" + input + "\",";
 	}
 	
-	public List<Object> getObj() {
+	public List<Object> generateContent() {
 		List<Object> out = new ArrayList<>();
 		out.add(this.id);
 		out.add(this.subject);
-		out.add(this.organisationId);
-		out.add(this.requesterId);
+		out.add(this.organisation.getName());
+		out.add(this.requester.getName());
 		out.add(this.type);
 		out.add(priority);
 		out.add(this.created);
@@ -79,15 +89,7 @@ public class Ticket implements Comparable<Ticket> {
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
-
-	public long getRequesterId() {
-		return requesterId;
-	}
-
-	public void setRequesterId(long requesterId) {
-		this.requesterId = requesterId;
-	}
-
+	
 	public String getType() {
 		return type;
 	}
@@ -136,20 +138,28 @@ public class Ticket implements Comparable<Ticket> {
 		this.effort = effort;
 	}
 
-	public long getOrganisationId() {
-		return organisationId;
-	}
-
-	public void setOrganisationId(long organisationId) {
-		this.organisationId = organisationId;
-	}
-
 	public String getDivision() {
 		return division;
 	}
 
 	public void setDivision(String division) {
 		this.division = division;
+	}
+
+	public Org getOrganisation() {
+		return organisation;
+	}
+
+	public void setOrganisation(Org organisation) {
+		this.organisation = organisation;
+	}
+
+	public User getRequester() {
+		return requester;
+	}
+
+	public void setRequester(User requester) {
+		this.requester = requester;
 	}
 	
 }

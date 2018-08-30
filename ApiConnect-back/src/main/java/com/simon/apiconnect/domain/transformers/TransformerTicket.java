@@ -7,7 +7,9 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.simon.apiconnect.domain.bundle.Org;
 import com.simon.apiconnect.domain.bundle.Ticket;
+import com.simon.apiconnect.domain.bundle.User;
 import com.simon.apiconnect.domain.cache.SourceType;
 
 public class TransformerTicket extends Transformer {
@@ -29,8 +31,8 @@ public class TransformerTicket extends Transformer {
 				Ticket temp = new Ticket();
 				temp.setId((long) setField(child.get("id"), true, false));
 				temp.setSubject((String) setField(child.get("subject"), false, false));
-				temp.setOrganisationId((long) setField(child.get("organization_id"), true, false));
-				temp.setRequesterId((long) setField(child.get("requester_id"), true, false));
+				temp.setOrganisation(new Org( (long)setField(child.get("organization_id"), true, false)));
+				temp.setRequester(new User((long) setField(child.get("requester_id"), true, false)));
 				temp.setPriority((String) setField(child.get("priority"), false, false));
 				temp.setType((String) setField(child.get("type"), false, false));
 				temp.setStatus((String) setField(child.get("status"), false, false));

@@ -7,6 +7,10 @@ public class User {
 	
 	public User() {}
 	
+	public User(long id) {
+		this.id = id;
+	}
+	
 	public String toString() {
 		return this.id + "|" + this.name;
 	}

@@ -10,12 +10,16 @@ public class Org {
 	private String type;
 	
 	public Org() {}
+	
+	public Org(long id) {
+		this.id = id;
+	}
 
 	public String toString() {
 		return this.id + ":" + this.name + " --- " + this.type;
 	}
 	
-	public String getHeader() {
+	public String generateHeader() {
 		return wrapinQuotes("id",false) + 
 				wrapinQuotes("name",true);
 	}
@@ -26,7 +30,7 @@ public class Org {
 		else return "\"" + input + "\",";
 	}
 	
-	public List<Object> getObj() {
+	public List<Object> generateContent() {
 		List<Object> out = new ArrayList<>();
 		out.add(this.id);
 		out.add(this.name);
