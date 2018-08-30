@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.simon</groupId>
-	<artifactId>ApiConnect</artifactId>
+	<artifactId>ApiConnect-back</artifactId>
 	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
-	<name>ApiConnect</name>
+	<name>ApiConnect-back</name>
 	<description>Api Connection Service</description>
 
 	<parent>

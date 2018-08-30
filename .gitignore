@@ -1,15 +1,15 @@
-/target/
-/.mvn/
-/bin/
+/ApiConnect-back/target/
+/ApiConnect-back/.mvn/
+/ApiConnect-back/bin/
 
 ### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-/mvnw
-/mvnw.cmd
+/ApiConnect-back/.apt_generated
+/ApiConnect-back/.classpath
+/ApiConnect-back/.factorypath
+/ApiConnect-back/.project
+/ApiConnect-back/.settings
+/ApiConnect-back/.springBeans
+/ApiConnect-back/.sts4-cache
+/ApiConnect-back/mvnw
+/ApiConnect-back/mvnw.cmd
 
