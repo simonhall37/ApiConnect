@@ -38,6 +38,14 @@ public class Organisation {
 		this.zendeskId = zendeskId;
 		this.bundleStarts = bundleStarts;
 	}
+	
+	public String toString() {
+		return this.id + "," + this.zendeskId + "," + this.bundleStarts;
+	}
+	
+	public void addTimeCorrection(TimeCorrection corr) {
+		this.corrections.add(corr);
+	}
 
 	/* getters and setters */
 	public long getZendeskId() {

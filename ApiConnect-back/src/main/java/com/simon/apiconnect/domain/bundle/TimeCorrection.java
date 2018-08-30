@@ -13,22 +13,31 @@ public class TimeCorrection {
 	@GeneratedValue
 	private long id;
 	
-	private long zendeskId;
-	private int newEffort;
+	private long ticketId;
+	private double newEffort;
 	
 	public TimeCorrection() {}
 	
+	public TimeCorrection(long ticketId,double newEffort) {
+		this.ticketId = ticketId;
+		this.newEffort = newEffort;
+	}
+	
+	public String toString() {
+		return this.id + "," + this.ticketId + "," + this.newEffort;
+	}
+	
 	/*getters and setters */
-	public long getZendeskId() {
-		return zendeskId;
+	public long getTicketId() {
+		return ticketId;
 	}
-	public void setZendeskId(long zendeskId) {
-		this.zendeskId = zendeskId;
+	public void setTicketId(long ticketId) {
+		this.ticketId = ticketId;
 	}
-	public int getNewEffort() {
+	public double getNewEffort() {
 		return newEffort;
 	}
-	public void setNewEffort(int newEffort) {
+	public void setNewEffort(double newEffort) {
 		this.newEffort = newEffort;
 	}
 	
