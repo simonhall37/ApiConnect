@@ -29,7 +29,7 @@ public class ReportController {
 	public void getTicketReport(@PathVariable Long id,HttpServletResponse response) {
 		response.setContentType("text/plain; charset=utf-8");
 		try {
-			response.getWriter().print(reportService.generateReport(id,true));
+			response.getWriter().print(reportService.generateReport(id,true,null));
 		} catch (JsonProcessingException e) {
 			log.error("JsonParse exception",e);
 		} catch (IOException e) {

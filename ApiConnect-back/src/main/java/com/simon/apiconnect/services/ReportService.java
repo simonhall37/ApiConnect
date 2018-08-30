@@ -1,6 +1,8 @@
 package com.simon.apiconnect.services;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simon.apiconnect.domain.bundle.Org;
 import com.simon.apiconnect.domain.bundle.Ticket;
+import com.simon.apiconnect.domain.bundle.User;
 
 @Service
 public class ReportService {
@@ -27,9 +30,38 @@ public class ReportService {
 	
 	private ObjectMapper om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	
-	public String generateReport(long orgId, boolean addHeader) throws JsonProcessingException {
+	public Map<Long,User> getUserMap(){
+		Map<Long,User> out = new HashMap<>();
+		
+		List<Object> users = null;
+		
+		try {
+			users = cacheRepo.getByName("users", true).getContent();
+		} catch (NullPointerException e) {
+			log.error("Couldn't get the organisation content from cache or disk");
+			return null;
+		}
+		
+		for (Object obj : users) {
+			User o = null;
+			try {
+				o = om.convertValue(obj, User.class);
+			} catch (IllegalArgumentException e) {
+				log.error("Can't convert from object to Organisation");
+				return null;
+			}
+			out.put(o.getId(), o);
+		}
+		
+		return out;
+	}
+	
+	public String generateReport(long orgId, boolean addHeader,Map<Long,User> users) throws JsonProcessingException {
 		StringBuilder sb = new StringBuilder();
 		List<Object> orgs = null;
+		
+		if (users==null)
+			users = getUserMap();
 		
 		try {
 			orgs = cacheRepo.getByName("organisations", true).getContent();
@@ -48,10 +80,10 @@ public class ReportService {
 			}
 			if (o.getId() == orgId) {
 				try {
-					List<String> tickets = getTickets(orgId);
+					List<String> tickets = getTickets(o,users);
 					log.info("Found " + tickets.size() + " for " + o.getName());
 					if (addHeader)
-						sb.append(new Ticket().getHeader() + System.lineSeparator());
+						sb.append(new Ticket().generateHeader() + System.lineSeparator());
 					for (String line : tickets) {
 						sb.append(line + System.lineSeparator());
 					}
@@ -68,19 +100,22 @@ public class ReportService {
 		return sb.toString();
 	}
 
-	private List<String> getTickets(long orgId) throws NullPointerException, ClassCastException {
+	private List<String> getTickets(Org orgObj,Map<Long,User> users) throws NullPointerException, ClassCastException {
+		
 		return cacheRepo.getByName("tickets", true).getContent()
 				.stream()
 				.map(o -> om.convertValue(o, Ticket.class))
-				.filter(t -> t.getOrganisationId() == orgId)
+				.filter(t -> t.getOrganisation().getId() == orgObj.getId())
+				.map(t -> t.addOrg(orgObj))
+				.map(t -> t.addUser(users.get(t.getRequester().getId())))
 				.sorted()
-				.map(t -> csvWriter.wrapContents(t.getObj()))
+				.map(t -> csvWriter.wrapContents(t.generateContent()))
 				.collect(Collectors.toList());
 	}
 
 	public String generateAllReports() throws JsonProcessingException {
 		StringBuilder sb = new StringBuilder();
-		sb.append(new Ticket().getHeader() + System.lineSeparator());
+		sb.append(new Ticket().generateHeader() + System.lineSeparator());
 		List<Object> orgs = null;
 		
 		try {
@@ -98,7 +133,7 @@ public class ReportService {
 				log.error("Can't convert from object to Organisation");
 				return null;
 			}
-			String report = generateReport(o.getId(),false);
+			String report = generateReport(o.getId(),false,getUserMap());
 			sb.append(report);
 		}
 		return sb.toString();
@@ -106,7 +141,7 @@ public class ReportService {
 
 	public String generateOrgReports() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(new Org().getHeader() + System.lineSeparator());
+		sb.append(new Org().generateHeader() + System.lineSeparator());
 		List<Object> orgs = null;
 		
 		try {
@@ -124,7 +159,7 @@ public class ReportService {
 				log.error("Can't convert from object to Organisation");
 				return null;
 			}
-			String report = this.csvWriter.wrapContents(o.getObj());
+			String report = this.csvWriter.wrapContents(o.generateContent());
 			sb.append(report + System.lineSeparator());
 		}
 		return sb.toString();
