@@ -1,8 +1,12 @@
 package com.simon.apiconnect.services;
 
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -14,7 +18,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simon.apiconnect.domain.bundle.Org;
+import com.simon.apiconnect.domain.bundle.Organisation;
 import com.simon.apiconnect.domain.bundle.Ticket;
+import com.simon.apiconnect.domain.bundle.TimeCorrection;
 import com.simon.apiconnect.domain.bundle.User;
 
 @Service
@@ -24,6 +30,9 @@ public class ReportService {
 	
 	@Autowired
 	private CacheRepository cacheRepo;
+	
+	@Autowired
+	private OrganisationRepository orgRepo;
 	
 	@Autowired
 	private CSVService csvWriter;
@@ -100,16 +109,30 @@ public class ReportService {
 		return sb.toString();
 	}
 
+	private Organisation getOrganisation(long id) {
+		try{
+			return this.orgRepo.findByZendeskId(id).get();
+		} catch (NoSuchElementException e) {
+			
+		}
+		return null;
+	}
+	
 	private List<String> getTickets(Org orgObj,Map<Long,User> users) throws NullPointerException, ClassCastException {
+		
+		Organisation base = getOrganisation(orgObj.getId());	
+		final Set<TimeCorrection> corrections = new HashSet<TimeCorrection>();
+		if (base!=null) corrections.addAll(base.getCorrections());
 		
 		return cacheRepo.getByName("tickets", true).getContent()
 				.stream()
 				.map(o -> om.convertValue(o, Ticket.class))
 				.filter(t -> t.getOrganisation().getId() == orgObj.getId())
+				.filter(t -> base==null?true:LocalDate.parse(base.getBundleStarts()).isBefore(LocalDate.parse(t.getCreated().substring(0, 10))))
 				.map(t -> t.addOrg(orgObj))
 				.map(t -> t.addUser(users.get(t.getRequester().getId())))
 				.sorted()
-				.map(t -> csvWriter.wrapContents(t.generateContent()))
+				.map(t -> csvWriter.wrapContents(t.generateContent(corrections)))
 				.collect(Collectors.toList());
 	}
 
