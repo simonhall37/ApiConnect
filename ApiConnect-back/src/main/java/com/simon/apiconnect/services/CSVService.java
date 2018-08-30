@@ -22,7 +22,13 @@ public class CSVService {
 			br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			String line = null;
 			while ((line = br.readLine()) != null) {
-				out.add(line.split(","));
+				String[] splitLine = line.split(",");
+				for (int i=0;i<splitLine.length;i++) {
+					if (splitLine[i].startsWith("\"") && splitLine[i].endsWith("\"")) {
+						splitLine[i] = splitLine[i].substring(1, splitLine[i].length()-1);
+					}
+				}
+				out.add(splitLine);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
