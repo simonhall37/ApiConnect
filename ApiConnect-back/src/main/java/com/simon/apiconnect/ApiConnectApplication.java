@@ -14,6 +14,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simon.apiconnect.domain.bundle.ExtraTicket;
 import com.simon.apiconnect.domain.bundle.Organisation;
 import com.simon.apiconnect.domain.bundle.TimeCorrection;
 import com.simon.apiconnect.services.CSVService;
@@ -55,17 +57,35 @@ public class ApiConnectApplication {
 				}
 			}
 			
+			Map<Long,Set<ExtraTicket>> extra = new HashMap<>();
+			lines = csvService.readCSV("extra.csv");
+			num =0;
+			for (String[] l : lines) {
+				if (++num>1) {
+					ExtraTicket et = new ExtraTicket(l[1],l[2],Double.parseDouble(l[3]));
+					long orgId = Long.parseLong(l[0]);
+					if (extra.containsKey(orgId))
+						extra.get(orgId).add(et);
+					else {
+						HashSet<ExtraTicket> temp = new HashSet<>();
+						temp.add(et);
+						extra.put(orgId, temp);
+					}
+				}
+			}
+			
 			lines = csvService.readCSV("orgs.csv");
 			num =0;
 			for (String[] l : lines) {
 				if (++num>1) {
 					Organisation o = new Organisation(Long.parseLong(l[0]),Long.parseLong(l[1]),l[2]);
 					o.setCorrections(corrections.get(o.getZendeskId()));
+					o.setExtra(extra.get(o.getZendeskId()));
 					orgRepo.save(o);
 				}
 			}
-			
-			log.info("Started with " + orgRepo.count());
+			Thread.sleep(5000);
+			orgRepo.findAll().stream().forEach(o -> System.out.println(o.getZendeskId()));
 			
 		};
 	}

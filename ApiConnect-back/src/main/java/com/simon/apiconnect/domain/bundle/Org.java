@@ -14,6 +14,11 @@ public class Org {
 	public Org(long id) {
 		this.id = id;
 	}
+	
+	public Org(long id, String name) {
+		this.id = id;
+		this.name = name;
+	}
 
 	public String toString() {
 		return this.id + ":" + this.name + " --- " + this.type;

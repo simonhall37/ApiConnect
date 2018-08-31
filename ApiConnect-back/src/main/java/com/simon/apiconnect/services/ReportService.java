@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simon.apiconnect.domain.bundle.ExtraTicket;
 import com.simon.apiconnect.domain.bundle.Org;
 import com.simon.apiconnect.domain.bundle.Organisation;
 import com.simon.apiconnect.domain.bundle.Ticket;
@@ -65,7 +66,7 @@ public class ReportService {
 		return out;
 	}
 	
-	public String generateReport(long orgId, boolean addHeader,Map<Long,User> users) throws JsonProcessingException {
+	public String generateReport(long orgId, boolean addHeader,Map<Long,User> users,String startDate) throws JsonProcessingException {
 		StringBuilder sb = new StringBuilder();
 		List<Object> orgs = null;
 		
@@ -89,15 +90,19 @@ public class ReportService {
 			}
 			if (o.getId() == orgId) {
 				try {
-					List<String> tickets = getTickets(o,users);
-					log.info("Found " + tickets.size() + " for " + o.getName());
-					if (addHeader)
-						sb.append(new Ticket().generateHeader() + System.lineSeparator());
-					for (String line : tickets) {
-						sb.append(line + System.lineSeparator());
+					if (testTickets(o, startDate==null?"2000-01-01":startDate)) {
+						List<String> tickets = getTickets(o,users);
+						log.info("Found " + tickets.size() + " for " + o.getName());
+						if (addHeader)
+							sb.append(new Ticket().generateHeader() + System.lineSeparator());
+						for (String line : tickets) {
+							sb.append(line + System.lineSeparator());
+						}
 					}
+					
 				} catch (NullPointerException e) {
 					log.error("Couldn't get tickets from cache or disk");
+					e.printStackTrace();
 					return null;
 				} catch (ClassCastException e) {
 					log.error("Couldn't cast Object to Ticket");
@@ -118,8 +123,7 @@ public class ReportService {
 		return null;
 	}
 	
-	private List<String> getTickets(Org orgObj,Map<Long,User> users) throws NullPointerException, ClassCastException {
-		
+	private boolean testTickets(Org orgObj,String startDate) {
 		Organisation base = getOrganisation(orgObj.getId());	
 		final Set<TimeCorrection> corrections = new HashSet<TimeCorrection>();
 		if (base!=null) corrections.addAll(base.getCorrections());
@@ -128,15 +132,46 @@ public class ReportService {
 				.stream()
 				.map(o -> om.convertValue(o, Ticket.class))
 				.filter(t -> t.getOrganisation().getId() == orgObj.getId())
-				.filter(t -> base==null?true:LocalDate.parse(base.getBundleStarts()).isBefore(LocalDate.parse(t.getCreated().substring(0, 10))))
+				.filter(t -> base==null?true:LocalDate.parse(base.getBundleStarts()).isBefore(LocalDate.parse(t.getUpdated().substring(0, 10))))
+				.anyMatch(t -> t.getEffort()>0d && LocalDate.parse(startDate).isBefore(LocalDate.parse(t.getUpdated().substring(0, 10))))
+				;
+	}
+	
+	private List<String> getTickets(Org orgObj,Map<Long,User> users) throws NullPointerException, ClassCastException {
+		
+		Organisation base = getOrganisation(orgObj.getId());	
+		final Set<TimeCorrection> corrections = new HashSet<TimeCorrection>();
+		final Set<ExtraTicket> extra = new HashSet<ExtraTicket>();
+		if (base!=null) {
+			extra.addAll(base.getExtra());
+			corrections.addAll(base.getCorrections());
+		}
+		
+		List<String> out = cacheRepo.getByName("tickets", true).getContent()
+				.stream()
+				.map(o -> om.convertValue(o, Ticket.class))
+				.filter(t -> t.getOrganisation().getId() == orgObj.getId())
+				.filter(t -> base==null?false:LocalDate.parse(base.getBundleStarts()).isBefore(LocalDate.parse(t.getUpdated().substring(0, 10))))
 				.map(t -> t.addOrg(orgObj))
 				.map(t -> t.addUser(users.get(t.getRequester().getId())))
 				.sorted()
 				.map(t -> csvWriter.wrapContents(t.generateContent(corrections)))
 				.collect(Collectors.toList());
+		
+		List<String> extraTickets = extra.stream()
+				.map(et -> new Ticket(et.getSubject(),et.getLastUpdated(),et.getNewEffort(),new Org(orgObj.getId(),orgObj.getName())))
+				.map(t -> csvWriter.wrapContents(t.generateContent(corrections)))
+				.collect(Collectors.toList());
+		
+		if (extraTickets.size()>0) {
+			log.info("Extra tickets " + extraTickets.size() + " found for " + orgObj.getName());
+			out.addAll(extraTickets);
+		}
+		
+		return out;
 	}
 
-	public String generateAllReports() throws JsonProcessingException {
+	public String generateAllReports(String startDate) throws JsonProcessingException {
 		StringBuilder sb = new StringBuilder();
 		sb.append(new Ticket().generateHeader() + System.lineSeparator());
 		List<Object> orgs = null;
@@ -156,7 +191,7 @@ public class ReportService {
 				log.error("Can't convert from object to Organisation");
 				return null;
 			}
-			String report = generateReport(o.getId(),false,getUserMap());
+			String report = generateReport(o.getId(),false,getUserMap(),startDate);
 			sb.append(report);
 		}
 		return sb.toString();

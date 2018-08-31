@@ -31,6 +31,9 @@ public class Organisation {
 	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.LAZY)
 	private Set<TimeCorrection> corrections = new HashSet<>();
 	
+	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.LAZY)
+	private Set<ExtraTicket> extra = new HashSet<>();
+	
 	public Organisation() {}
 	
 	public Organisation(long id,long zendeskId,String bundleStarts) {
@@ -101,5 +104,11 @@ public class Organisation {
 	}
 	public void setCorrections(Set<TimeCorrection> corrections) {
 		this.corrections = corrections;
+	}
+	public Set<ExtraTicket> getExtra() {
+		return extra;
+	}
+	public void setExtra(Set<ExtraTicket> extra) {
+		this.extra = extra;
 	}
 }

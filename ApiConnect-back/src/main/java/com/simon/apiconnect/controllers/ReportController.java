@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.simon.apiconnect.services.ReportService;
@@ -26,10 +27,10 @@ public class ReportController {
 	
 	@GetMapping
 	@RequestMapping(value = "/tickets/{id}")
-	public void getTicketReport(@PathVariable Long id,HttpServletResponse response) {
+	public void getTicketReport(@RequestParam(value="start_date",required=false) String startDate, @PathVariable Long id,HttpServletResponse response) {
 		response.setContentType("text/plain; charset=utf-8");
 		try {
-			response.getWriter().print(reportService.generateReport(id,true,null));
+			response.getWriter().print(reportService.generateReport(id,true,null,startDate));
 		} catch (JsonProcessingException e) {
 			log.error("JsonParse exception",e);
 		} catch (IOException e) {
@@ -39,10 +40,10 @@ public class ReportController {
 	
 	@GetMapping
 	@RequestMapping(value = "/tickets")
-	public void getTicketReports(HttpServletResponse response) {
+	public void getTicketReports(@RequestParam(value="start_date",required=false) String startDate,HttpServletResponse response) {
 		response.setContentType("text/plain; charset=utf-8");
 		try {
-			response.getWriter().print(reportService.generateAllReports());
+			response.getWriter().print(reportService.generateAllReports(startDate));
 		} catch (JsonProcessingException e) {
 			log.error("JsonParse exception",e);
 		} catch (IOException e) {

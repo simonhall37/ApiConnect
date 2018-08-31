@@ -22,6 +22,14 @@ public class Ticket implements Comparable<Ticket> {
 	public Ticket() {
 	}
 	
+	public Ticket(String subject, String lastUpdated,double newEffort,Org organisation) {
+		this.subject = subject;
+		this.updated = lastUpdated;
+		this.effort = newEffort;
+		this.organisation = organisation;
+		this.requester = new User(0L);
+	}
+	
 	public Ticket addUser(User user) {
 		this.requester = user;
 		return this;
