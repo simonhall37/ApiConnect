@@ -14,12 +14,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simon.apiconnect.domain.ApiConnection;
+import com.simon.apiconnect.domain.CredentialType;
+import com.simon.apiconnect.domain.Profile;
 import com.simon.apiconnect.domain.bundle.ExtraTicket;
 import com.simon.apiconnect.domain.bundle.Organisation;
 import com.simon.apiconnect.domain.bundle.TimeCorrection;
 import com.simon.apiconnect.services.CSVService;
 import com.simon.apiconnect.services.OrganisationRepository;
+import com.simon.apiconnect.services.ProfileRepository;
 
 @SpringBootApplication
 public class ApiConnectApplication {
@@ -31,6 +34,9 @@ public class ApiConnectApplication {
 	
 	@Autowired
 	private CSVService csvService;
+	
+	@Autowired
+	private ProfileRepository profileRepo;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(ApiConnectApplication.class, args);
@@ -84,9 +90,17 @@ public class ApiConnectApplication {
 					orgRepo.save(o);
 				}
 			}
-			Thread.sleep(5000);
-			orgRepo.findAll().stream().forEach(o -> System.out.println(o.getZendeskId()));
 			
+			Profile defaultProfile = new Profile(1,"default");
+			defaultProfile.addConnection(new ApiConnection("zendesk","https://wasupport.zendesk.com/api/v2/",CredentialType.BASIC,System.getenv("ZEN_USER"),System.getenv("ZEN_TOKEN")));
+			defaultProfile.addConnection(new ApiConnection("redmine", "https://issues.webanywhere.co.uk/", CredentialType.TOKEN, "X-Redmine-API-Key", System.getenv("RM_API_KEY")));
+
+			profileRepo.save(defaultProfile);
+			log.info("Default profile loaded");
+			
+			log.info("Started");
 		};
 	}
+	
+	
 }
