@@ -1,13 +1,21 @@
 <header>
-  <mat-toolbar color="primary">
+  <mat-toolbar class="toolbar">
 
   <mat-toolbar-row>
     <mat-icon class="menu-icon">insert_chart</mat-icon>
     <span class="menu-item">Zen-Reporter</span>
     <mat-icon class="menu-icon">group</mat-icon>
-    <span class="menu-item">Profiles</span>
+    <span class="menu-item">
+      <a routerLink="/profiles" routerLinkActive="active">
+        Profiles
+      </a>
+    </span>
     <mat-icon class="menu-icon">move_to_inbox</mat-icon>
-    <span class="menu-item">Cache</span>
+    <span class="menu-item">
+      <a routerLink="/cache" routerLinkActive="active">
+        Cache
+      </a>
+    </span>
     <mat-icon class="menu-icon">file_copy</mat-icon>
     <span class="menu-item">Reports</span>
     <span class="menu-spacer"></span>
@@ -16,14 +24,8 @@
 
   </mat-toolbar>
 </header>
-<!--
-<section class="container">
-  <div class="row">
-    <mat-card class="col-md-6">1</mat-card>
-    <mat-card class="col-md-6">2</mat-card>
-    <mat-card class="col-md-6">3</mat-card>
-    <mat-card class="col-md-6 ">4</mat-card>
+<div class="flexbox-parent">
+  <div fullscreen class="router" layout-align="center center" layout-fill layout="row">
+    <router-outlet></router-outlet>
   </div>
-</section>
--->
-<footer></footer>
+</div>
