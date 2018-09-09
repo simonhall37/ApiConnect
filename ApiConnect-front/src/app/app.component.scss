@@ -9,3 +9,30 @@
 .menu-spacer {
   flex: 1 1 auto;
 }
+
+a {
+  color: white;
+  text-decoration: none;
+}
+
+.toolbar {
+  background-color: #8dc540;
+  color: white;
+}
+
+table {
+  width: 100%;
+}
+
+.flexbox-parent {
+  min-height: -webkit-calc(100% - 82px);
+}
+
+.router {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 5%;
+  padding-right: 5%;
+  align-content: center;
+  min-height: 100% !important;
+}

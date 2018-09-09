@@ -1,0 +1,89 @@
+<div *ngIf="message.show">
+  <div *ngIf="isError()">
+    <mat-card class="error-card" (click)="message.show=false">
+      <mat-card-header>
+        <div mat-card-avatar class="message-error-image"></div>
+        <mat-card-title>Error</mat-card-title>
+        <mat-card-subtitle>{{message.content}}</mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+  </div>
+  <div *ngIf="!isError()">
+    <mat-card class="info-card" (click)="message.show=false">
+      <mat-card-header>
+        <div mat-card-avatar class="message-info-image"></div>
+        <mat-card-title>Success</mat-card-title>
+        <mat-card-subtitle>{{message.content}}</mat-card-subtitle>
+      </mat-card-header>
+    </mat-card>
+  </div>
+
+</div>
+
+
+<table mat-table
+       [dataSource]="dataSource" multiTemplateDataRows
+       class="mat-elevation-z8"
+        #table
+       >
+  <ng-container matColumnDef="{{column}}" *ngFor="let column of columnsToDisplay">
+    <th mat-header-cell *matHeaderCellDef> {{column  | titlecase}} </th>
+
+    <td mat-cell *matCellDef="let element"> {{element[column]  | titlecase}}
+      <span class="title-container">
+        <a type="button" class="title-button" (click)="removeProfile(element)">
+          <mat-icon class="icon">delete</mat-icon>
+        </a>
+        <a type="button"  class="title-button" (click)="updateProfile(element)">
+          <mat-icon class="icon">edit</mat-icon>
+        </a>
+      </span>
+    </td>
+  </ng-container>
+
+  <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+  <ng-container matColumnDef="expandedDetail">
+    <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplay.length">
+      <div class="profile-element-detail"
+           [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
+
+        <div class="profile-element-description">
+          <table class="inner-table">
+            <thead class="inner-table-header">
+              <th>Name</th>
+              <th>Type</th>
+              <th>Key</th>
+              <th>Value</th>
+            </thead>
+            <tbody>
+              <tr *ngFor="let connection of element.connections">
+                <td>{{connection.name}}</td>
+                <td>{{connection.type}}</td>
+                <td>{{connection.credKey}}</td>
+                <td>{{connection.credValue}}</td>
+                <td class="icon-cell">
+                  <a type="button" (click)="removeConnection(element,connection)">
+                    <mat-icon class="icon">delete</mat-icon>
+                  </a>
+                </td>
+                <td class="icon-cell">
+                  <a type="button" (click)="updateProfile(element)">
+                    <mat-icon class="icon">edit</mat-icon>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+  <tr mat-row *matRowDef="let element; columns: columnsToDisplay;"
+      class="profile-element-row"
+      [class.profile-expanded-row]="expandedElement === element"
+      (click)="expandedElement = element">
+  </tr>
+  <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="profile-detail-row"></tr>
+</table>
