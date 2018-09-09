@@ -37,7 +37,7 @@ public class Organisation {
 	public Organisation() {}
 	
 	public Organisation(long id,long zendeskId,String bundleStarts) {
-		this.id = id;
+//		this.id = id;
 		this.zendeskId = zendeskId;
 		this.bundleStarts = bundleStarts;
 	}
