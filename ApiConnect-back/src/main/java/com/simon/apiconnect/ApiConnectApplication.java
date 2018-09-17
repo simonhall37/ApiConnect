@@ -20,7 +20,9 @@ import com.simon.apiconnect.domain.Profile;
 import com.simon.apiconnect.domain.bundle.ExtraTicket;
 import com.simon.apiconnect.domain.bundle.Organisation;
 import com.simon.apiconnect.domain.bundle.TimeCorrection;
+import com.simon.apiconnect.domain.statObj.StatOrg;
 import com.simon.apiconnect.services.CSVService;
+import com.simon.apiconnect.services.ImportService;
 import com.simon.apiconnect.services.OrganisationRepository;
 import com.simon.apiconnect.services.ProfileRepository;
 
@@ -33,7 +35,7 @@ public class ApiConnectApplication {
 	private OrganisationRepository orgRepo;
 	
 	@Autowired
-	private CSVService csvService;
+	private ImportService importService;
 	
 	@Autowired
 	private ProfileRepository profileRepo;
@@ -46,50 +48,10 @@ public class ApiConnectApplication {
 	public CommandLineRunner run() throws Exception {
 		return args -> {
 			
-			Map<Long,Set<TimeCorrection>> corrections = new HashMap<>();
-			List<String[]> lines = csvService.readCSV("changes.csv");
-			int num =0;
-			for (String[] l : lines) {
-				if (++num>1) {
-					TimeCorrection tc = new TimeCorrection(Long.parseLong(l[1]),Double.parseDouble(l[2]));
-					long orgId = Long.parseLong(l[0]);
-					if (corrections.containsKey(orgId))
-						corrections.get(orgId).add(tc);
-					else {
-						HashSet<TimeCorrection> temp = new HashSet<>();
-						temp.add(tc);
-						corrections.put(orgId, temp);
-					}
-				}
-			}
+//			importService.importOrganisations();
 			
-			Map<Long,Set<ExtraTicket>> extra = new HashMap<>();
-			lines = csvService.readCSV("extra.csv");
-			num =0;
-			for (String[] l : lines) {
-				if (++num>1) {
-					ExtraTicket et = new ExtraTicket(l[1],l[2],Double.parseDouble(l[3]));
-					long orgId = Long.parseLong(l[0]);
-					if (extra.containsKey(orgId))
-						extra.get(orgId).add(et);
-					else {
-						HashSet<ExtraTicket> temp = new HashSet<>();
-						temp.add(et);
-						extra.put(orgId, temp);
-					}
-				}
-			}
-			
-			lines = csvService.readCSV("orgs.csv");
-			num =0;
-			for (String[] l : lines) {
-				if (++num>1) {
-					Organisation o = new Organisation(Long.parseLong(l[0]),Long.parseLong(l[1]),l[2]);
-					o.setCorrections(corrections.get(o.getZendeskId()));
-					o.setExtra(extra.get(o.getZendeskId()));
-					orgRepo.save(o);
-				}
-			}
+			List<StatOrg> staticOrgs = importService.getObject("stat/StatOrgs.csv", StatOrg.class);
+			log.info("Read in " + staticOrgs.size());
 			
 			Profile defaultProfile = new Profile(1,"default");
 			defaultProfile.addConnection(new ApiConnection("zendesk","https://wasupport.zendesk.com/api/v2/",CredentialType.BASIC,System.getenv("ZEN_USER"),System.getenv("ZEN_TOKEN")));
