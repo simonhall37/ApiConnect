@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -16,7 +17,7 @@ import javax.persistence.Table;
 public class StatBundle {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	private String startDate;
@@ -24,16 +25,40 @@ public class StatBundle {
 	private double balance;
 	private long firstTicketId;
 	private long lastTicketId;
-	private long OrgZenId;
+	private long orgZenId;
 	
-	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.LAZY)
+	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
 	private Set<StatTicket> tickets = new HashSet<>();
-	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.LAZY)
+	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
 	private Set<StatCorrection> corrections = new HashSet<>();
 	
 	public StatBundle() {}
 	
+	public StatBundle(String startDate, String endDate, String firstTicketId, String lastTicketId, String orgZenId) throws ClassCastException{
+		try {
+			this.startDate = startDate;
+			this.endDate = endDate;
+			try{
+				this.firstTicketId = Long.parseLong(firstTicketId);
+			} catch (NumberFormatException e) {}
+			try{
+				this.lastTicketId = Long.parseLong(lastTicketId);
+			} catch (NumberFormatException e) {}
+			try {
+				this.orgZenId = Long.parseLong(orgZenId);
+			} catch (NumberFormatException e) {}
+		} catch (ClassCastException e) {
+			throw new ClassCastException(e.getMessage());
+		} 
+	}
+	
 	/* getters and setters */
+	public long getId() {
+		return this.id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
 	public String getStartDate() {
 		return startDate;
 	}
@@ -65,10 +90,10 @@ public class StatBundle {
 		this.lastTicketId = lastTicketId;
 	}
 	public long getOrgZenId() {
-		return OrgZenId;
+		return orgZenId;
 	}
 	public void setOrgZenId(long orgZenId) {
-		OrgZenId = orgZenId;
+		this.orgZenId = orgZenId;
 	}
 	public Set<StatTicket>  getTickets(){
 		return this.tickets;

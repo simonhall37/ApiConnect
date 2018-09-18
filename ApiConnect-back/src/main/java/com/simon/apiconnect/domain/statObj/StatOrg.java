@@ -29,7 +29,7 @@ public class StatOrg {
 	private double currentBalance;
 	private boolean unlimited;
 	
-	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.LAZY)
+	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
 	private Set<StatBundle> bundles = new HashSet<>();
 	
 	public StatOrg() {}
@@ -53,7 +53,18 @@ public class StatOrg {
 		
 	}
 	
+	public StatOrg addBundle(StatBundle bundle) {
+		this.bundles.add(bundle);
+		return this;
+	}
+	
 	/* getters and setters */
+	public long getId() {
+		return this.id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
 	public long getZendeskId() {
 		return zendeskId;
 	}
