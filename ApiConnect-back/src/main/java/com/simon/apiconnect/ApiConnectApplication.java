@@ -50,8 +50,7 @@ public class ApiConnectApplication {
 			
 //			importService.importOrganisations();
 			
-			List<StatOrg> staticOrgs = importService.getObject("stat/StatOrgs.csv", StatOrg.class);
-			log.info("Read in " + staticOrgs.size());
+			importService.initialOrgImport("stat/StatOrgs.csv","stat/StatBundles.csv","","",true);
 			
 			Profile defaultProfile = new Profile(1,"default");
 			defaultProfile.addConnection(new ApiConnection("zendesk","https://wasupport.zendesk.com/api/v2/",CredentialType.BASIC,System.getenv("ZEN_USER"),System.getenv("ZEN_TOKEN")));
