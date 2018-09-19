@@ -172,7 +172,7 @@ public class ImportService {
 		
 		
 		//save to the repository
-		staticOrgs.forEach(org -> this.statRepo.saveAndCheck(org));
+		staticOrgs.forEach(org -> this.statRepo.save(org));
 		log.info("Saved " + this.statRepo.count() + " orgs to db");
 		
 		if (prettyPrint) {
