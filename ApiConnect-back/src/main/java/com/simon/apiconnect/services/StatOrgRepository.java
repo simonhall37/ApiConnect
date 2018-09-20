@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.simon.apiconnect.domain.statObj.StatBundle;
 import com.simon.apiconnect.domain.statObj.StatOrg;
 
 public interface StatOrgRepository extends JpaRepository<StatOrg, Long> {
