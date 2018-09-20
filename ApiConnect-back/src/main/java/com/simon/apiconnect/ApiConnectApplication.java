@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import com.simon.apiconnect.domain.ApiConnection;
 import com.simon.apiconnect.domain.CredentialType;
 import com.simon.apiconnect.domain.Profile;
-import com.simon.apiconnect.domain.statObj.StatBundle;
+import com.simon.apiconnect.domain.statObj.StatOrg;
 import com.simon.apiconnect.services.BundleService;
 import com.simon.apiconnect.services.ImportService;
 import com.simon.apiconnect.services.ProfileRepository;
@@ -42,29 +42,26 @@ public class ApiConnectApplication {
 	public CommandLineRunner run() throws Exception {
 		return args -> {
 			
-			// import organisations from csv
-			importService.initialOrgImport("stat/StatOrgs.csv","stat/StatBundles.csv","","",false);
-		
 			// load a default profile with permission to access Zendesk + Redmine
-			Profile defaultProfile = new Profile(1,"default");
-			defaultProfile.addConnection(new ApiConnection("zendesk","https://wasupport.zendesk.com/api/v2/",CredentialType.BASIC,System.getenv("ZEN_USER"),System.getenv("ZEN_TOKEN")));
-			defaultProfile.addConnection(new ApiConnection("redmine", "https://issues.webanywhere.co.uk/", CredentialType.TOKEN, "X-Redmine-API-Key", System.getenv("RM_API_KEY")));
-			profileRepo.save(defaultProfile);
-			log.info("Default profile loaded");
+			setupProfile();
 			
-			// get tickets - replace in controller later on
-			StatBundle custBundle = 
-					this.statOrgRepo.findByZendeskId(8359913647L).get()
-					.getBundles().stream().findFirst().get();
-			this.bundleService.populateTicketIds(custBundle);
+			// import organisations from csv
+			importService.initialOrgImport("stat/StatOrgs.csv","stat/StatBundles.csv","stat/StatCorrections.csv","",false);
 			
-			StatBundle custBundle2 = 
-					this.statOrgRepo.findByZendeskId(360029307272L).get()
-					.getBundles().stream().findFirst().get();
-			this.bundleService.populateTicketIds(custBundle2);
-			
+			// get tickets - replace in controller later on	
+			StatOrg cust1 = this.statOrgRepo.findByZendeskId(8359913647L).get();
+			this.bundleService.populateOrgTickets(cust1);
+
 			log.info("Started");
 		};
+	}
+	
+	private void setupProfile() {
+		Profile defaultProfile = new Profile(1,"default");
+		defaultProfile.addConnection(new ApiConnection("zendesk","https://wasupport.zendesk.com/api/v2/",CredentialType.BASIC,System.getenv("ZEN_USER"),System.getenv("ZEN_TOKEN")));
+		defaultProfile.addConnection(new ApiConnection("redmine", "https://issues.webanywhere.co.uk/", CredentialType.TOKEN, "X-Redmine-API-Key", System.getenv("RM_API_KEY")));
+		profileRepo.save(defaultProfile);
+		log.info("Default profile loaded");
 	}
 	
 	
