@@ -1,6 +1,7 @@
 package com.simon.apiconnect.domain.statObj;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -20,6 +21,7 @@ public class StatOrg {
 	private long id;
 	
 	private long zendeskId;
+	private String orgName;
 	private String lastLogged;
 	private String accountManager;
 	private String movedToSupport;
@@ -41,20 +43,20 @@ public class StatOrg {
 			this.movedToSupport = movedToSupport;
 			this.bundleStarts = bundleStarts;
 			this.bundleEnds = bundleEnds;
-			this.bundleSize = Integer.parseInt(bundleSize);
 			if (unlimited.equalsIgnoreCase("TRUE"))
 				this.unlimited = true;
 			else if (unlimited.equalsIgnoreCase("FALSE"))
 				this.unlimited = false;
 			else throw new ClassCastException("Expecting TRUE/FALSE for unlimied but received " + unlimited);
+			this.bundleSize = Integer.parseInt(bundleSize);
 		} catch (ClassCastException e) {
 			throw new ClassCastException(e.getMessage());
 		}
 		
 	}
 	
-	public StatOrg addBundle(StatBundle bundle) {
-		this.bundles.add(bundle);
+	public StatOrg addBundles(List<StatBundle> bundles) {
+		this.bundles.addAll(bundles);
 		return this;
 	}
 	
@@ -124,5 +126,11 @@ public class StatOrg {
 	}
 	public void setUnlimited(boolean unlimited) {
 		this.unlimited = unlimited;
+	}
+	public String getOrgName() {
+		return orgName;
+	}
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
 	}
 }

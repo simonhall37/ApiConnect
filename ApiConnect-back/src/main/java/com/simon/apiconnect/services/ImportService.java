@@ -1,11 +1,8 @@
 package com.simon.apiconnect.services;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,6 +26,7 @@ import com.simon.apiconnect.domain.bundle.ExtraTicket;
 import com.simon.apiconnect.domain.bundle.Organisation;
 import com.simon.apiconnect.domain.bundle.TimeCorrection;
 import com.simon.apiconnect.domain.statObj.StatBundle;
+import com.simon.apiconnect.domain.statObj.StatCorrection;
 import com.simon.apiconnect.domain.statObj.StatOrg;
 
 @Service
@@ -45,7 +43,7 @@ public class ImportService {
 	public ImportService() {
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public <T> List<T> getObject(String csvPath, Class T) {
 
 		List<T> out = new ArrayList<>();
@@ -140,15 +138,25 @@ public class ImportService {
 		log.info("Saved " + this.repository.count() + " organisations");
 	}
 
-	public <T> Map<Long, T> toMap(List<T> input, String propName, @SuppressWarnings("rawtypes") Class T) {
-		Map<Long,T> out = new HashMap<>();
+	public <T> Map<Long, List<T>> toMap(List<T> input, String propName, @SuppressWarnings("rawtypes") Class T) {
+		Map<Long,List<T>> out = new HashMap<>();
 		for (T obj : input) {
 			Object id;
 			try {
 				@SuppressWarnings("unchecked")
 				Method m = T.getMethod("get" + propName, new Class[] {});
 				id = m.invoke(obj, new Object[] {});
-				out.put((Long) id, obj);
+				if (!out.containsKey((Long)id)) {
+					List<T> initialList = new ArrayList<>();
+					initialList.add(obj);
+					out.put((Long) id, initialList);
+				}
+				else {
+					List<T> initialList = out.get((Long)id);
+					initialList.add(obj);
+					out.put((Long)id, initialList);
+				}
+				
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
 					| NoSuchMethodException | SecurityException e) {
 				log.error("Error getting key value when transforming list to map",e);
@@ -157,19 +165,21 @@ public class ImportService {
 		return out;
 	}
 
-	public void initialOrgImport(String orgCSV, String bundleCSV, String extraCSV, String changesCSV,boolean prettyPrint) {
+	public void initialOrgImport(String orgCSV, String bundleCSV,String changesCSV, String extraCSV,boolean prettyPrint) {
 		
 		// initial csv import
 		List<StatOrg> staticOrgs = getObject(orgCSV, StatOrg.class);
 		List<StatBundle> staticBundles = getObject(bundleCSV, StatBundle.class);
+		List<StatCorrection> staticCorrections = getObject(changesCSV, StatCorrection.class);
 
 		// transform bundles to map with Zendesk id as key
-		Map<Long, StatBundle> bundlesMap = toMap(staticBundles, "OrgZenId", StatBundle.class);
+		Map<Long, List<StatBundle>> bundlesMap = toMap(staticBundles, "OrgZenId", StatBundle.class);
+		Map<Long, List<StatCorrection>> correctionsMap = toMap(staticCorrections, "ZenOrgId", StatCorrection.class);
 		
 		// add the bundles to organisations
-		staticOrgs = staticOrgs.stream().map(o -> o.addBundle(bundlesMap.get(o.getZendeskId()))).collect(Collectors.toList());
-		
-		
+		staticOrgs = staticOrgs.stream()
+						.map(o -> o.addBundles(bundlesMap.get(o.getZendeskId())))
+						.collect(Collectors.toList());
 		
 		//save to the repository
 		staticOrgs.forEach(org -> this.statRepo.save(org));

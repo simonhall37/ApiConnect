@@ -13,10 +13,19 @@ public class StatCorrection {
 	@GeneratedValue
 	private long id;
 	
+	private long zenOrgId;
 	private long zenTicketId;
 	private double updatedHours;
 	
 	public StatCorrection() {}
+	
+	public StatCorrection(String zenOrgId, String zenTicketId, String updatedHours) {
+		if (zenOrgId.length() > 0 && zenTicketId.length()>0 && updatedHours.length()>0) {
+			this.zenOrgId = Long.parseLong(zenOrgId);
+			this.zenTicketId = Long.parseLong(zenTicketId);
+			this.updatedHours = Long.parseLong(updatedHours);
+		}
+	}
 	
 	/* getters and setters */
 	public long getZenTicketId() {
@@ -30,6 +39,14 @@ public class StatCorrection {
 	}
 	public void setUpdatedHours(double updatedHours) {
 		this.updatedHours = updatedHours;
+	}
+
+	public long getZenOrgId() {
+		return zenOrgId;
+	}
+
+	public void setZenOrgId(long zenOrgId) {
+		this.zenOrgId = zenOrgId;
 	}
 	
 	
