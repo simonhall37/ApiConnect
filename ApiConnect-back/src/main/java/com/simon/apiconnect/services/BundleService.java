@@ -101,6 +101,7 @@ public class BundleService {
 
 		org.getBundles().stream().forEach(b -> populateTicketIds(b, tickets, requesters));
 		org.setOrgName(orgs.get(org.getZendeskId()).getName());
+		org.applyCorrections();
 
 		try {
 			System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(org));

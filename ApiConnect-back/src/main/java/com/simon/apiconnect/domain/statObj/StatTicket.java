@@ -10,13 +10,13 @@ import javax.persistence.Table;
 import com.simon.apiconnect.domain.bundle.Ticket;
 
 @Entity
-@Table(name="ticket")
+@Table(name = "ticket")
 public class StatTicket implements Comparable<StatTicket> {
 
 	@Id
 	@GeneratedValue
 	private long id;
-	
+
 	private long zenTicketId;
 	private double totalEffort;
 	private String createdDateTime;
@@ -24,9 +24,14 @@ public class StatTicket implements Comparable<StatTicket> {
 	private String subject;
 	private String type;
 	private String status;
-	
-	public StatTicket() {}
-	
+	private long zenOrgId;
+
+	public StatTicket() {
+	}
+
+	public StatTicket(String zenOrgId) {
+	}
+
 	public StatTicket(Ticket ticket) {
 		this.zenTicketId = ticket.getId();
 		this.totalEffort = ticket.getEffort();
@@ -36,7 +41,14 @@ public class StatTicket implements Comparable<StatTicket> {
 		this.type = ticket.getType();
 		this.status = ticket.getStatus();
 	}
-	
+
+	public StatTicket(String zenOrgId, String subject, String createdDateTime, String totalEffort) {
+		this.zenOrgId = Long.parseLong(zenOrgId);
+		this.subject = subject;
+		this.createdDateTime = createdDateTime;
+		this.totalEffort = Double.parseDouble(totalEffort);
+	}
+
 	@Override
 	public int compareTo(StatTicket o) {
 		return LocalDateTime.parse(this.createdDateTime).compareTo(LocalDateTime.parse(o.createdDateTime));
@@ -46,6 +58,7 @@ public class StatTicket implements Comparable<StatTicket> {
 	public double getTotalEffort() {
 		return totalEffort;
 	}
+
 	public void setTotalEffort(double totalEffort) {
 		this.totalEffort = totalEffort;
 	}
@@ -97,6 +110,12 @@ public class StatTicket implements Comparable<StatTicket> {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
-	
+
+	public long getZenOrgId() {
+		return this.zenOrgId;
+	}
+
+	public void setZenOrgId(long zenOrgId) {
+		this.zenOrgId = zenOrgId;
+	}
 }

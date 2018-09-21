@@ -1,7 +1,5 @@
 package com.simon.apiconnect.domain.statObj;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -19,7 +17,7 @@ import javax.persistence.Table;
 public class StatBundle {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue
 	private long id;
 	
 	private String startDate;
@@ -32,8 +30,6 @@ public class StatBundle {
 	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
 	@javax.persistence.OrderBy("createdDateTime")
 	private SortedSet<StatTicket> tickets = new TreeSet<>();
-	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
-	private Set<StatCorrection> corrections = new HashSet<>();
 	
 	public StatBundle() {}
 	
@@ -57,6 +53,7 @@ public class StatBundle {
 	
 	public void addTicket(StatTicket ticket) {
 		this.tickets.add(ticket);
+		this.balance = this.balance + ticket.getTotalEffort();
 	}
 	
 	/* getters and setters */
@@ -108,10 +105,5 @@ public class StatBundle {
 	public void setTickets(SortedSet<StatTicket>  tickets) {
 		this.tickets = tickets;
 	}
-	public Set<StatCorrection>  getCorrections(){
-		return this.corrections;
-	}
-	public void setcorrections(SortedSet<StatCorrection>  corrections) {
-		this.corrections = corrections;
-	}
+
 }
