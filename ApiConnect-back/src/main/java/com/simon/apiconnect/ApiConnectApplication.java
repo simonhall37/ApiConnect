@@ -46,7 +46,7 @@ public class ApiConnectApplication {
 			setupProfile();
 			
 			// import organisations from csv
-			importService.initialOrgImport("stat/StatOrgs.csv","stat/StatBundles.csv","stat/StatCorrections.csv","",false);
+			importService.initialOrgImport("stat/StatOrgs.csv","stat/StatBundles.csv","stat/StatCorrections.csv","stat/StatExtra.csv",false);
 			
 			// get tickets - replace in controller later on	
 			StatOrg cust1 = this.statOrgRepo.findByZendeskId(8359913647L).get();
