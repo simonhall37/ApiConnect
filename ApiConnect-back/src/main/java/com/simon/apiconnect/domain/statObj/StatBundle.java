@@ -7,14 +7,13 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="bundle")
-public class StatBundle {
+public class StatBundle implements Comparable<StatBundle> {
 
 	@Id
 	@GeneratedValue
@@ -26,6 +25,9 @@ public class StatBundle {
 	private long firstTicketId;
 	private long lastTicketId;
 	private long orgZenId;
+	private int bundleNum;
+	private int bundleSize;
+	private boolean active;
 	
 	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
 	@javax.persistence.OrderBy("createdDateTime")
@@ -33,27 +35,51 @@ public class StatBundle {
 	
 	public StatBundle() {}
 	
-	public StatBundle(String startDate, String endDate, String firstTicketId, String lastTicketId, String orgZenId) throws ClassCastException{
+	public StatBundle(String bundleNum, String startDate, String endDate, String firstTicketId, String lastTicketId, String orgZenId, String active, String bundleSize) throws ClassCastException{
 		try {
 			this.startDate = startDate;
 			this.endDate = endDate;
 			try{
+				this.bundleNum = Integer.parseInt(bundleNum);
+			} catch (NumberFormatException e) {
+				throw new ClassCastException("Can't parse bundle num from " + bundleNum);
+			}
+			try{
 				this.firstTicketId = Long.parseLong(firstTicketId);
-			} catch (NumberFormatException e) {}
+			} catch (NumberFormatException e) {	}
 			try{
 				this.lastTicketId = Long.parseLong(lastTicketId);
 			} catch (NumberFormatException e) {}
 			try {
 				this.orgZenId = Long.parseLong(orgZenId);
-			} catch (NumberFormatException e) {}
+			} catch (NumberFormatException e) {
+				throw new ClassCastException("Can't parse zendesk id from " + orgZenId);
+			}
+			try {
+				this.bundleSize = Integer.parseInt(bundleSize);
+			} catch (NumberFormatException e) {
+				throw new ClassCastException("Can't parse bundle size from " + bundleSize);
+			}
+			if (active.equalsIgnoreCase("TRUE"))
+				this.active = true;
+			else if (active.equalsIgnoreCase("FALSE"))
+				this.active = false;
+			else throw new ClassCastException("Can't parse boolean from " + active);
 		} catch (ClassCastException e) {
 			throw new ClassCastException(e.getMessage());
 		} 
 	}
 	
+	public void wipeTickets() {
+		for (StatTicket t : this.tickets) {
+			if (t.getZenTicketId()!=0L)
+				this.tickets.remove(t);
+		}
+	}
+	
 	public void addTicket(StatTicket ticket) {
 		this.tickets.add(ticket);
-		this.balance = this.balance + ticket.getTotalEffort();
+		this.balance = this.balance + Math.round(100*ticket.getTotalEffort()/60)/100.0;
 	}
 	
 	/* getters and setters */
@@ -104,6 +130,35 @@ public class StatBundle {
 	}
 	public void setTickets(SortedSet<StatTicket>  tickets) {
 		this.tickets = tickets;
+	}
+
+	public int getBundleNum() {
+		return bundleNum;
+	}
+
+	public void setBundleNum(int bundleNum) {
+		this.bundleNum = bundleNum;
+	}
+
+	public boolean getActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public int getBundleSize() {
+		return bundleSize;
+	}
+
+	public void setBundleSize(int bundleSize) {
+		this.bundleSize = bundleSize;
+	}
+
+	@Override
+	public int compareTo(StatBundle arg0) {
+		return  this.bundleNum - arg0.getBundleNum();
 	}
 
 }

@@ -1,7 +1,5 @@
 package com.simon.apiconnect.domain.statObj;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -36,6 +34,7 @@ public class StatOrg {
 	private int bundleSize;
 	private double currentBalance;
 	private boolean unlimited;
+	private int currentBundleId;
 
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
 	private Set<StatBundle> bundles = new HashSet<>();
@@ -46,7 +45,7 @@ public class StatOrg {
 	}
 
 	public StatOrg(String zendeskId, String accountManager, String movedToSupport, String bundleStarts,
-			String bundleEnds, String bundleSize, String unlimited) throws ClassCastException {
+			String bundleEnds, String unlimited) throws ClassCastException {
 		try {
 			this.zendeskId = Long.parseLong(zendeskId);
 			this.accountManager = accountManager;
@@ -59,11 +58,20 @@ public class StatOrg {
 				this.unlimited = false;
 			else
 				throw new ClassCastException("Expecting TRUE/FALSE for unlimied but received " + unlimited);
-			this.bundleSize = Integer.parseInt(bundleSize);
 		} catch (ClassCastException e) {
 			throw new ClassCastException(e.getMessage());
 		}
 
+	}
+	
+	public StatBundle findLatestBundle() {
+		StatBundle latest = null;
+		for (StatBundle b : this.bundles) {
+			if (b.getActive())
+				if (latest == null || latest.getBundleNum() < b.getBundleNum())
+					latest = b;
+		}
+		return latest;
 	}
 
 	public StatOrg addBundles(List<StatBundle> bundles) {
@@ -101,6 +109,15 @@ public class StatOrg {
 		return this;
 	}
 	
+	public boolean updateOrgDetails() {
+		StatBundle latest = findLatestBundle();
+		this.bundleStarts = latest.getStartDate();
+		this.bundleEnds = latest.getEndDate();
+		this.currentBalance = Math.round(100*(this.bundleSize - latest.getBalance()/60))/100.0;
+		this.currentBundleId = latest.getBundleNum();
+		this.bundleSize = latest.getBundleSize();
+		return true;
+	}
 
 	public void applyCorrections() {
 		Map<Long,Double> toCorrect = new HashMap<>();
@@ -110,9 +127,9 @@ public class StatOrg {
 		for (StatBundle bundle : this.bundles) {
 			for (StatTicket t : bundle.getTickets()) {
 				if (toCorrect.get(t.getZenTicketId())!=null) {
-					bundle.setBalance(bundle.getBalance() - t.getTotalEffort());
+					bundle.setBalance(bundle.getBalance() - Math.round(100*t.getTotalEffort()/60)/100.0);
 					t.setTotalEffort(toCorrect.get(t.getZenTicketId()));
-					bundle.setBalance(bundle.getBalance() + t.getTotalEffort());
+					bundle.setBalance(bundle.getBalance() + Math.round(100*t.getTotalEffort()/60)/100.00);
 					System.out.println("Corrected " + t.getZenTicketId());
 				}
 			}
@@ -222,5 +239,13 @@ public class StatOrg {
 
 	public void setcorrections(Set<StatCorrection> corrections) {
 		this.corrections = corrections;
+	}
+
+	public int getCurrentBundleId() {
+		return currentBundleId;
+	}
+
+	public void setCurrentBundleId(int currentBundleId) {
+		this.currentBundleId = currentBundleId;
 	}
 }

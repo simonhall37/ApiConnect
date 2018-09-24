@@ -29,6 +29,8 @@ public class BundleService {
 
 	@Autowired
 	private CacheRepository cacheRepo;
+	@Autowired
+	private StatOrgRepository statOrgRepo;
 
 	private ObjectMapper om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -85,28 +87,34 @@ public class BundleService {
 			return false;
 	}
 
-	public StatOrg populateOrgTickets(StatOrg org) {
+	public StatOrg populateOrgTickets(StatOrg org, boolean print) {
 
+		// Clear the existing tickets
+		org.getBundles().stream().forEach(b -> b.wipeTickets());
+		
 		// Get the tickets
 		List<Ticket> tickets = getObjectFromCache("tickets", Ticket.class, true);
-		log.info(tickets.size() + " tickets retreived");
 
 		// get the users
 		Map<Long, User> requesters = toSimpleMap(getObjectFromCache("users", User.class, true), "Id", User.class);
-		log.info(requesters.size() + " users retreived");
-		
+	
 		// get the Orgs
 		Map<Long, Org> orgs = toSimpleMap(getObjectFromCache("organisations", Org.class, true), "Id", Org.class);
-		log.info(orgs.size() + " orgs retreived");
 
 		org.getBundles().stream().forEach(b -> populateTicketIds(b, tickets, requesters));
 		org.setOrgName(orgs.get(org.getZendeskId()).getName());
 		org.applyCorrections();
+		org.updateOrgDetails();
+		this.statOrgRepo.save(org);
 
-		try {
-			System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(org));
-		} catch (JsonProcessingException e) {
+		if (print) {
+			try {
+				System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(org));
+			} catch (JsonProcessingException e) {
+				log.error("Error printing results to console",e);
+			}
 		}
+		
 
 		return org;
 
