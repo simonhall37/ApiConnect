@@ -1,5 +1,9 @@
 package com.simon.apiconnect;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +15,10 @@ import org.springframework.context.annotation.Bean;
 import com.simon.apiconnect.domain.ApiConnection;
 import com.simon.apiconnect.domain.CredentialType;
 import com.simon.apiconnect.domain.Profile;
+import com.simon.apiconnect.domain.statObj.StatBundle;
 import com.simon.apiconnect.domain.statObj.StatOrg;
 import com.simon.apiconnect.services.BundleService;
+import com.simon.apiconnect.services.CSVService;
 import com.simon.apiconnect.services.ImportService;
 import com.simon.apiconnect.services.ProfileRepository;
 import com.simon.apiconnect.services.StatOrgRepository;
@@ -34,6 +40,9 @@ public class ApiConnectApplication {
 	@Autowired
 	private ProfileRepository profileRepo;
 	
+	@Autowired
+	private CSVService csvService;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(ApiConnectApplication.class, args);
 	}
@@ -50,8 +59,23 @@ public class ApiConnectApplication {
 			
 			// get tickets - replace in controller later on	
 			StatOrg cust1 = this.statOrgRepo.findByZendeskId(8359913647L).get();
-			this.bundleService.populateOrgTickets(cust1);
-
+			this.bundleService.populateOrgTickets(cust1,false);
+			
+			// write the report out
+			List<String> toInclude = new ArrayList<>();
+			toInclude.add("BundleNum");
+			toInclude.add("OrgZenId");
+			toInclude.add("StartDate");
+			toInclude.add("EndDate");
+			toInclude.add("BundleSize");
+			toInclude.add("Balance");
+			toInclude.add("Active");
+			
+			String out = this.csvService.toCSV(
+					cust1.getBundles().stream().sorted().collect(Collectors.toList())
+					, StatBundle.class, true, toInclude);
+			System.out.println(out);
+			
 			log.info("Started");
 		};
 	}
