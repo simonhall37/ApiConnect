@@ -94,9 +94,13 @@ public class ApiConnectApplication {
 			Profile defaultProfile = new Profile(1,"default");
 			defaultProfile.addConnection(new ApiConnection("zendesk","https://wasupport.zendesk.com/api/v2/",CredentialType.BASIC,System.getenv("ZEN_USER"),System.getenv("ZEN_TOKEN")));
 			defaultProfile.addConnection(new ApiConnection("redmine", "https://issues.webanywhere.co.uk/", CredentialType.TOKEN, "X-Redmine-API-Key", System.getenv("RM_API_KEY")));
+			Profile defaultProfile2 = new Profile(1,"additional");
+			defaultProfile2.addConnection(new ApiConnection("zen","https://wasupport.zendesk.com/api/v2/",CredentialType.BASIC,System.getenv("ZEN_USER"),System.getenv("ZEN_TOKEN")));
+			defaultProfile2.addConnection(new ApiConnection("red", "https://issues.webanywhere.co.uk/", CredentialType.TOKEN, "X-Redmine-API-Key", System.getenv("RM_API_KEY")));
 
 			profileRepo.save(defaultProfile);
-			log.info("Default profile loaded");
+			profileRepo.save(defaultProfile2);
+			log.info("Default profile2 loaded");
 			
 			log.info("Started");
 		};
