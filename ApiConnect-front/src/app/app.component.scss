@@ -1,38 +1,9 @@
-.menu-icon {
-  padding: 0 10px;
+$primary-colour: #8dc540;
+
+.bg-dark {
+  background-color: $primary-colour !important;
 }
 
-.menu-item {
-  padding: 0px 40px 0px 0px;
-}
-
-.menu-spacer {
-  flex: 1 1 auto;
-}
-
-a {
-  color: white;
-  text-decoration: none;
-}
-
-.toolbar {
-  background-color: #8dc540;
-  color: white;
-}
-
-table {
-  width: 100%;
-}
-
-.flexbox-parent {
-  min-height: -webkit-calc(100% - 82px);
-}
-
-.router {
-  padding-top: 20px;
-  padding-bottom: 20px;
-  padding-left: 5%;
-  padding-right: 5%;
-  align-content: center;
-  min-height: 100% !important;
+.nav-item {
+  padding-right: 25px;
 }

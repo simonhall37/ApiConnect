@@ -1,99 +1,88 @@
-table {
-  width: 100%;
+$primary-colour: #8dc540;
+$error-colour: #E4572E;
+$warning-colour: #FDE74C;
+
+.padding {
+  padding-left: 15%;
+  padding-right: 15%;
+  padding-top: 15px;
 }
 
-.message-info-image {
-  background-image: url('/assets/tick.png');
-  background-size: cover;
+.error-border {
+  border-color: $error-colour;
+  border-width: 1px;
+  border-style: solid;
 }
 
-.info-card {
+.error {
+  color: $error-colour;
+}
+
+.add-profile {
+  text-align: left;
+  display : flex;
+  align-items : center;
+}
+
+.add-profile-text {
+  padding-left: 10px;
+}
+
+.message {
+  display : flex;
+  align-items : center;
   padding: 10px;
-  border-color: #8dc540;
-  border-style: double;
-  margin-bottom: 20px;
 }
 
-.message-error-image {
-  background-image: url('/assets/cross.png');
-  background-size: cover;
+.message-content {
+  margin-left: 20px;
+  display : flex;
+  align-items : center;
+  width:80%;
 }
 
-.error-card {
-  padding: 10px;
-  border-color: #f23232;
-  border-style: double;
-  margin-bottom: 20px;
-}
-
-.icon {
-  color:  #8dc540;
+.card-body {
+  border-color: $primary-colour;
   border-style: solid;
   border-width: thin;
 }
 
-.icon-cell {
-  padding: 2px;
+.read-only {
+  border: 1px;
+  border-color: white;
+  border-style: solid;
+  background: none;
 }
 
-.title-container {
-  padding-left: 20px;
+.editMode {
+  border: 1px;
+  border-color: $primary-colour;
+  border-style: solid;
+  background: none;
 }
 
-.title-button {
-  padding: 5px;
+.unsavedChanges {
+  border: 1px;
+  border-color: $warning-colour;
+  border-style: solid;
+  background: none;
 }
 
-.inner-table-header {
-  background-color: #8dc540;
-  color: white;
-  padding: 15px;
-  text-align: left;
+.primary {
+  color: $primary-colour;
+  font-size: 20px;
+  margin-left: 10px;
 }
 
-th {
-  padding: 8px 15px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+.card-title {
+  padding-bottom: 15px;
 }
 
-td {
-    padding: 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+.card {
+  border-style: none;
 }
 
-.inner-table {
-
-}
-
-tr.profile-detail-row {
-  height: 0;
-}
-
-tr.profile-element-row:not(.profile-expanded-row):hover {
-  background: #f5f5f5;
-}
-
-tr.profile-element-row:not(.profile-expanded-row):active {
-  background: #efefef;
-}
-
-.profile-element-row td {
-  border-bottom-width: 0;
-}
-
-.profile-element-detail {
-  overflow: hidden;
-  display: flex;
-}
-
-
-.profile-element-description {
-  padding: 16px 5% 16px 5%;
-  width: 100%;
-}
-
-.profile-element-description-attribution {
-  opacity: 0.5;
+.thead-custom {
+  background-color: $primary-colour !important;
+  border-color: white !important;
 }

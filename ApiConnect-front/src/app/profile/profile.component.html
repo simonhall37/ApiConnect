@@ -1,89 +1,124 @@
-<div *ngIf="message.show">
-  <div *ngIf="isError()">
-    <mat-card class="error-card" (click)="message.show=false">
-      <mat-card-header>
-        <div mat-card-avatar class="message-error-image"></div>
-        <mat-card-title>Error</mat-card-title>
-        <mat-card-subtitle>{{message.content}}</mat-card-subtitle>
-      </mat-card-header>
-    </mat-card>
-  </div>
-  <div *ngIf="!isError()">
-    <mat-card class="info-card" (click)="message.show=false">
-      <mat-card-header>
-        <div mat-card-avatar class="message-info-image"></div>
-        <mat-card-title>Success</mat-card-title>
-        <mat-card-subtitle>{{message.content}}</mat-card-subtitle>
-      </mat-card-header>
-    </mat-card>
-  </div>
-
-</div>
-
-
-<table mat-table
-       [dataSource]="dataSource" multiTemplateDataRows
-       class="mat-elevation-z8"
-        #table
-       >
-  <ng-container matColumnDef="{{column}}" *ngFor="let column of columnsToDisplay">
-    <th mat-header-cell *matHeaderCellDef> {{column  | titlecase}} </th>
-
-    <td mat-cell *matCellDef="let element"> {{element[column]  | titlecase}}
-      <span class="title-container">
-        <a type="button" class="title-button" (click)="removeProfile(element)">
-          <mat-icon class="icon">delete</mat-icon>
-        </a>
-        <a type="button"  class="title-button" (click)="updateProfile(element)">
-          <mat-icon class="icon">edit</mat-icon>
-        </a>
-      </span>
-    </td>
-  </ng-container>
-
-  <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-  <ng-container matColumnDef="expandedDetail">
-    <td mat-cell *matCellDef="let element" [attr.colspan]="columnsToDisplay.length">
-      <div class="profile-element-detail"
-           [@detailExpand]="element == expandedElement ? 'expanded' : 'collapsed'">
-
-        <div class="profile-element-description">
-          <table class="inner-table">
-            <thead class="inner-table-header">
-              <th>Name</th>
-              <th>Type</th>
-              <th>Key</th>
-              <th>Value</th>
+<div class="container-fluid">
+  <div class="row text-center">
+    <div class="col-12">
+      <div class="card padding">
+        <div class="card-body row">
+          <div class="add-profile col-4">
+            <input
+              class="add-profile-text"
+              placeholder="profile name..."
+              [(ngModel)]="newName"
+              (keypress)="add($event)"
+            >
+            <span class="fa-stack fa-2x primary" (click)="addProfile()">
+              <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+              <i class="fas fa-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="message col-8" [hidden]="!message.show" [ngClass]="{'error-border': message.type==='error'}">
+            <span class="primary">
+              <i class="fas fa-2x" aria-hidden="true"
+                [ngClass]="{'fa-exclamation-triangle error': message.type==='error','fa-clipboard-check' : message.type==='info'}"
+              ></i>
+            </span>
+            <div class="message-content"> {{message.content}} </div>
+            <span class="primary" (click)="hideMessage()">
+              <i class="fas fa-times" aria-hidden="true"
+                  [ngClass]="{'error': message.type==='error'}"
+              ></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card padding row" *ngFor="let profile of profiles">
+        <div class="card-body">
+              <h2 class="card-title">
+                <input   class="read-only"
+                        [(ngModel)]="profile.name"
+                        [readonly]="!profile.editMode"
+                        [ngClass]="{'read-only': !profile.editMode,'editMode' : profile.editMode}"
+                        (keypress)="updateProfile($event,profile)"
+                        #cmp
+                        tabindex="{{3 * profiles.indexOf(profile)}}"
+                        id="{{profiles.indexOf(profile)}}"
+                        >
+                <span class="fa-stack fa-2x primary" (click)="editProfile(profile)">
+                  <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                  <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
+                       aria-hidden="true"
+                       [ngClass]="{'fa-pencil-alt': !profile.editMode,'fa-check': profile.editMode}"
+                       >
+                  </i>
+                </span>
+                <span class="fa-stack fa-2x primary" (click)="removeProfile(profile)">
+                  <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                  <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                </span>
+                <span class="fa-stack fa-2x primary" (click)="addConnection(profile)">
+                  <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                  <i class="fas fa-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                </span>
+            </h2>
+          <table class="table table-hover">
+            <thead class="thead-dark thead-custom">
+              <tr>
+                <th class="thead-custom">Name</th>
+                <th class="thead-custom">Type</th>
+                <th class="thead-custom">Key</th>
+                <th class="thead-custom">Value</th>
+              </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let connection of element.connections">
-                <td>{{connection.name}}</td>
-                <td>{{connection.type}}</td>
-                <td>{{connection.credKey}}</td>
-                <td>{{connection.credValue}}</td>
-                <td class="icon-cell">
-                  <a type="button" (click)="removeConnection(element,connection)">
-                    <mat-icon class="icon">delete</mat-icon>
-                  </a>
+              <tr *ngFor="let connection of profile.connections" (click)="rowClick(connection)">
+                <td>
+                  <input   class="read-only"
+                  [(ngModel)]="connection.name"
+                  [readonly]="!connection.editMode"
+                  [ngClass]="{'read-only': !connection.editMode,'editMode' : connection.editMode}"
+                  (keypress)="updateConnection($event,connection,profile)"
+                  >
                 </td>
-                <td class="icon-cell">
-                  <a type="button" (click)="updateProfile(element)">
-                    <mat-icon class="icon">edit</mat-icon>
-                  </a>
+                <td>
+                  <input   class="read-only"
+                  [(ngModel)]="connection.type"
+                  [readonly]="!connection.editMode"
+                  [ngClass]="{'read-only': !connection.editMode,'editMode' : connection.editMode}"
+                  (keypress)="updateConnection($event,connection,profile)"
+                  >
                 </td>
+                <td>
+                  <input   class="read-only"
+                  [(ngModel)]="connection.credKey"
+                  [readonly]="!connection.editMode"
+                  [ngClass]="{'read-only': !connection.editMode,'editMode' : connection.editMode}"
+                  (keypress)="updateConnection($event,connection,profile)"
+                  >
+                </td>
+                <td>
+                  <input   class="read-only"
+                  [(ngModel)]="connection.credValue"
+                  [readonly]="!connection.editMode"
+                  [ngClass]="{'read-only': !connection.editMode,'editMode' : connection.editMode}"
+                  (keypress)="updateConnection($event,connection,profile)"
+                  >
+                </td>
+                <span class="fa-stack fa-2x primary" (click)="editConnection(connection)">
+                  <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                  <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
+                       aria-hidden="true"
+                       [ngClass]="{'fa-pencil-alt': !connection.editMode,'fa-check': connection.editMode}"
+                       >
+                  </i>
+                </span>
+                <span class="fa-stack fa-2x primary" (click)="removeConnection(profile,connection)">
+                  <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                  <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                </span>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </td>
-  </ng-container>
-
-  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-  <tr mat-row *matRowDef="let element; columns: columnsToDisplay;"
-      class="profile-element-row"
-      [class.profile-expanded-row]="expandedElement === element"
-      (click)="expandedElement = element">
-  </tr>
-  <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="profile-detail-row"></tr>
-</table>
+    </div>
+  </div>
+</div>

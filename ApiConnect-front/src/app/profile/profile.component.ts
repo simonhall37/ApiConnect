@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {Profile, ApiConnection} from '../profile/profile';
 import {ApiService} from '../api.service';
@@ -15,33 +15,31 @@ class Message {
   selector: 'af-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({height: '0px', minHeight: '0', display: 'none'})),
-      state('expanded', style({height: '*'})),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-    ]),
-  ],
+
 })
 export class ProfileComponent implements OnInit {
 
-  message: Message;
-  dataSource = [];
-  columnsToDisplay = ['name'];
-  expandedElement: Profile;
-  counter: number = 0;
+  @ViewChildren('cmp') profileNames:QueryList<ElementRef>;
 
-  @ViewChild('table') table: MatTable<any>;
+  message: Message;
+  profiles: Profile[] = [];
+  expandedElement: Profile;
+  newName: string;
 
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
     this.apiService.getAllProfiles().subscribe(
       (profiles) => {
-        this.dataSource = profiles;
+        this.profiles = profiles;
       }
     );
     this.message = new Message();
+  }
+
+  // general functions
+  hideMessage(){
+    this.message.show = false;
   }
 
   isError()  {
@@ -49,53 +47,110 @@ export class ProfileComponent implements OnInit {
     else return false;
   }
 
-  updateProfile(profile: Profile){
-    // profile.name = profile.name + "  " + this.counter;
+  editProfile(profile: Profile){
+    let index = this.profiles.indexOf(profile);
+    if (profile.editMode === true){
+      profile.editMode = !profile.editMode;
+      this.update(profile);
+    }
+    else {
+      // turn off edit mode for all other profiles (without submitting)
+      for (var p of this.profiles){
+        p.editMode=false;
+      }
+      profile.editMode = !profile.editMode;
+      for (var er of this.profileNames.toArray()){
+        if (er.nativeElement.id == index){
+          er.nativeElement.focus();
+        }
+      }
+    }
+  }
+  editConnection(connection:ApiConnection){
+    connection.editMode = !connection.editMode;
+  }
+
+  handleError(err: HttpErrorResponse){
+    this.message.type = "error";
+    if (err.status === 404) this.message.content = "Error connecting to server";
+    else this.message.content = err.message;
+    this.message.show = true;
+  }
+
+  // REST calls
+  // PUT
+  updateProfile(event, profile:Profile) {
+    if (event.keyCode === 13){
+      profile.editMode = !profile.editMode;
+      this.update(profile);
+    }
+  }
+  updateConnection(event, connection:ApiConnection,profile:Profile) {
+    if (event.keyCode === 13){
+      connection.editMode = !connection.editMode;
+      this.update(profile);
+    }
+  }
+
+  update(profile: Profile){
     this.apiService.putProfile(profile).subscribe(
       (response) => {
-        this.table.renderRows();
         this.message.type = "info";
         this.message.content = "Profile updated successfully";
         this.message.show = true;
       },
       (err: HttpErrorResponse) => {
-        this.message.type = "error";
-        if (err.status === 404) this.message.content = "Error connecting to server";
-        else this.message.content = err.message;
-        this.message.show = true;
-        console.log(this.message);
+        this.handleError(err);
       }
     );
   }
 
+  // DELETE
   removeProfile(element: Profile){
     this.apiService.deleteProfile(element).subscribe(
       (response) => {
-        var index = this.dataSource.indexOf(element);
-        if (index > -1) {
-          this.dataSource.splice(index, 1);
-        }
+        this.profiles.splice(this.profiles.indexOf(element),1);
         this.message.type = "info";
         this.message.content = "Profile deleted successfully";
         this.message.show = true;
       },
       (err: HttpErrorResponse) => {
-        this.message.type = "error";
-        if (err.status === 404) this.message.content = "Error connecting to server";
-        else this.message.content = err.message;
-        this.message.show = true;
+        this.handleError(err);
       }
     );
-    console.log(this.table.dataSource);
-    this.table.renderRows();
   }
-
   removeConnection(element: Profile,connection: ApiConnection){
     var index = element.connections.indexOf(connection);
     if (index > -1) {
       element.connections.splice(index, 1);
     }
-    this.updateProfile(element);
+    this.update(element);
+  }
+
+  // POST
+  addConnection(profile: Profile){
+    profile.connections.push(new ApiConnection());
+  }
+  add(event){
+    if (event.keyCode === 13){
+      this.addProfile();
+    }
+  }
+  addProfile(){
+    let profile: Profile = new Profile();
+    profile.name = this.newName;
+    profile.connections = [];
+    this.apiService.postProfile(profile).subscribe(
+      (response) => {
+        this.message.type = "info";
+        this.message.content = "Profile created successfully";
+        this.message.show = true;
+        this.profiles.push(profile);
+      },
+      (err: HttpErrorResponse) => {
+        this.handleError(err);
+      }
+    );
   }
 
 }
