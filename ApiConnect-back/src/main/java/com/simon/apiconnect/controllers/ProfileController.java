@@ -66,13 +66,14 @@ public class ProfileController {
 		return new ResponseEntity<>(headers, HttpStatus.CREATED);
 	}
 
-	@PutMapping("/{name}")
-	public ResponseEntity<Profile> updateProfile(@PathVariable("name") String name, @Valid @RequestBody Profile profile) {
-		return profileRepo.findByName(name).map(profileToUpdate -> {
+	@PutMapping("/{id}")
+	public ResponseEntity<Profile> updateProfile(@PathVariable("id") long id, @Valid @RequestBody Profile profile) {
+		return profileRepo.findById(id).map(profileToUpdate -> {
 			profileToUpdate.setConnections(profile.getConnections());
+			profileToUpdate.setName(profile.getName());
 			profileRepo.save(profileToUpdate);
 			return new ResponseEntity<>(profileToUpdate, HttpStatus.OK);
-		}).orElseThrow(() -> new ProfileNotFoundException(log, "profile", "name", name));
+		}).orElseThrow(() -> new ProfileNotFoundException(log, "profile", "id", String.valueOf(id)));
 	}
 
 	@DeleteMapping("/{name}")
