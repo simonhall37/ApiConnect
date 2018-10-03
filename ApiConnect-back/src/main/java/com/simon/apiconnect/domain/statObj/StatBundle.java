@@ -1,5 +1,6 @@
 package com.simon.apiconnect.domain.statObj;
 
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -28,6 +29,7 @@ public class StatBundle implements Comparable<StatBundle> {
 	private int bundleNum;
 	private int bundleSize;
 	private boolean active;
+	private String orgName;
 	
 	@OneToMany(cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
 	@javax.persistence.OrderBy("createdDateTime")
@@ -71,14 +73,12 @@ public class StatBundle implements Comparable<StatBundle> {
 	}
 	
 	public void wipeTickets() {
-		for (StatTicket t : this.tickets) {
-			if (t.getZenTicketId()!=0L)
-				this.tickets.remove(t);
-		}
+		this.tickets.removeIf(t -> t.getZenTicketId()!=0L);
 	}
 	
 	public void addTicket(StatTicket ticket) {
 		this.tickets.add(ticket);
+		ticket.setBundleNum(this.getBundleNum());
 		this.balance = this.balance + Math.round(100*ticket.getTotalEffort()/60)/100.0;
 	}
 	
@@ -159,6 +159,14 @@ public class StatBundle implements Comparable<StatBundle> {
 	@Override
 	public int compareTo(StatBundle arg0) {
 		return  this.bundleNum - arg0.getBundleNum();
+	}
+
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
 	}
 
 }
