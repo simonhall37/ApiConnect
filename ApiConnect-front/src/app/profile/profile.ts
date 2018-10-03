@@ -5,10 +5,14 @@ export class ApiConnection {
   CredentialType: string;
   credKey: string;
   credValue: string;
+  editMode: boolean;
+  unsaved: boolean;
 }
 
 export class Profile {
   id: number;
   name: string;
   connections: ApiConnection[];
+  editMode: boolean = false;
+  unsaved: boolean;
 }
