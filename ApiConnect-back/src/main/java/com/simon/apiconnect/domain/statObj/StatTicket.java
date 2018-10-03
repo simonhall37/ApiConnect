@@ -25,6 +25,8 @@ public class StatTicket implements Comparable<StatTicket> {
 	private String type;
 	private String status;
 	private long zenOrgId;
+	private int bundleNum;
+	private String orgName;
 
 	public StatTicket() {
 	}
@@ -35,11 +37,21 @@ public class StatTicket implements Comparable<StatTicket> {
 	public StatTicket(Ticket ticket) {
 		this.zenTicketId = ticket.getId();
 		this.totalEffort = ticket.getEffort();
+		this.zenOrgId = ticket.getOrganisation().getId();
 		this.createdDateTime = ticket.getCreated();
-		this.requesterName = ticket.getRequester().getName();
+		try{
+			this.requesterName = ticket.getRequester().getName();
+		} catch (NullPointerException e) {
+			System.out.println("Error: " + ticket.getId() + " has null requester");
+		}
 		this.subject = ticket.getSubject();
 		this.type = ticket.getType();
 		this.status = ticket.getStatus();
+	}
+	
+	public StatTicket updateOrgName(String orgName) {
+		this.orgName = orgName;
+		return this;
 	}
 
 	public StatTicket(String zenOrgId, String subject, String createdDateTime, String totalEffort) {
@@ -117,5 +129,21 @@ public class StatTicket implements Comparable<StatTicket> {
 
 	public void setZenOrgId(long zenOrgId) {
 		this.zenOrgId = zenOrgId;
+	}
+
+	public int getBundleNum() {
+		return bundleNum;
+	}
+
+	public void setBundleNum(int bundleNum) {
+		this.bundleNum = bundleNum;
+	}
+
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
 	}
 }
