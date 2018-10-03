@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,7 @@ public class BundleService {
 	public StatOrg populateOrgTickets(StatOrg org, boolean print) {
 
 		// Clear the existing tickets
-		org.getBundles().stream().forEach(b -> b.wipeTickets());
+		org.getBundles().stream().forEachOrdered(b -> b.wipeTickets());
 		
 		// Get the tickets
 		List<Ticket> tickets = getObjectFromCache("tickets", Ticket.class, true);
@@ -101,8 +102,14 @@ public class BundleService {
 		// get the Orgs
 		Map<Long, Org> orgs = toSimpleMap(getObjectFromCache("organisations", Org.class, true), "Id", Org.class);
 
+		try {
+			org.setOrgName(orgs.get(org.getZendeskId()).getName());
+			org.getBundles().stream().forEachOrdered(b -> b.setOrgName(org.getOrgName()));
+		} catch (NullPointerException e) {
+			log.warn("Couldn't set org name dur to null " + org.getZendeskId());
+		}
 		org.getBundles().stream().forEach(b -> populateTicketIds(b, tickets, requesters));
-		org.setOrgName(orgs.get(org.getZendeskId()).getName());
+		
 		org.applyCorrections();
 		org.updateOrgDetails();
 		this.statOrgRepo.save(org);
@@ -126,7 +133,7 @@ public class BundleService {
 		if (input.getFirstTicketId() > 0L) {
 			tickets.stream().filter(t -> t.getOrganisation().getId() == input.getOrgZenId())
 					.filter(t -> t.getId() >= input.getFirstTicketId())
-					.filter(t -> input.getLastTicketId() > 0L ? t.getId() <= input.getLastTicketId() : true)
+					.filter(t -> input.getLastTicketId() > 0L ? t.getId() <= input.getLastTicketId() : compareDates(input.getEndDate(),t.getCreated()))
 					.map(t -> t.addUser(requesters.get(t.getRequester().getId()))).sorted()
 					.forEach(t -> input.addTicket(new StatTicket(t)));
 		}
@@ -135,10 +142,63 @@ public class BundleService {
 			tickets.stream().filter(t -> t.getOrganisation().getId() == input.getOrgZenId())
 					.filter(t -> compareDates(t.getCreated(), input.getStartDate()))
 					.filter(t -> input.getLastTicketId() > 0L ? t.getId() <= input.getLastTicketId() : true)
+					.filter(t -> compareDates(input.getEndDate(),t.getCreated()))
 					.map(t -> t.addUser(requesters.get(t.getRequester().getId()))).sorted()
 					.forEach(t -> input.addTicket(new StatTicket(t)));
 		}
+		
+		input.getTickets().stream().forEach(t -> t.updateOrgName(input.getOrgName()));
 
 		return input;
+	}
+	
+	public List<Object> getAllBundles(){
+		List<Object> out = new ArrayList<>();
+		
+		for (StatOrg org : this.statOrgRepo.findAll()) {
+			out.addAll(
+					populateOrgTickets(org, false)
+					.getBundles().stream().sorted().collect(Collectors.toList())
+			);
+		}
+		
+		return out;
+	}
+	
+	public List<Object> getAllTickets(){
+		List<Object> out = new ArrayList<>();
+		for (Object o : getAllBundles()) {
+			out.addAll(((StatBundle)o).getTickets().stream()
+				.sorted().collect(Collectors.toList()));
+		}
+		return out;
+	}
+
+	public List<String> getDefaultBundleColumns() {
+		List<String> toInclude = new ArrayList<>();
+		toInclude.add("BundleNum");
+		toInclude.add("OrgZenId");
+		toInclude.add("OrgName");
+		toInclude.add("StartDate");
+		toInclude.add("EndDate");
+		toInclude.add("BundleSize");
+		toInclude.add("Balance");
+		toInclude.add("Active");
+		return toInclude;
+	}
+	
+	public List<String> getDefaultTicketColumns() {
+		List<String> toInclude = new ArrayList<>();
+		toInclude.add("ZenOrgId");
+		toInclude.add("OrgName");
+		toInclude.add("BundleNum");
+		toInclude.add("ZenTicketId");
+		toInclude.add("CreatedDateTime");
+		toInclude.add("RequesterName");
+		toInclude.add("Subject");
+		toInclude.add("Type");
+		toInclude.add("Status");
+		toInclude.add("TotalEffort");
+		return toInclude;
 	}
 }
