@@ -1,31 +1,35 @@
 <header>
-  <mat-toolbar class="toolbar">
-
-  <mat-toolbar-row>
-    <mat-icon class="menu-icon">insert_chart</mat-icon>
-    <span class="menu-item">Zen-Reporter</span>
-    <mat-icon class="menu-icon">group</mat-icon>
-    <span class="menu-item">
-      <a routerLink="/profiles" routerLinkActive="active">
-        Profiles
-      </a>
-    </span>
-    <mat-icon class="menu-icon">move_to_inbox</mat-icon>
-    <span class="menu-item">
-      <a routerLink="/cache" routerLinkActive="active">
-        Cache
-      </a>
-    </span>
-    <mat-icon class="menu-icon">file_copy</mat-icon>
-    <span class="menu-item">Reports</span>
-    <span class="menu-spacer"></span>
-    <mat-icon class="menu-icon">person</mat-icon>
-  </mat-toolbar-row>
-
-  </mat-toolbar>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Zen Reporter</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/profiles" routerLinkActive="active" class="nav-link">
+              Profiles
+            </a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/cache" routerLinkActive="active" class="nav-link">
+              Cache
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Reports</a>
+          </li>
+        </ul>
+      </div>
+  </div>
+  </nav>
 </header>
-<div class="flexbox-parent">
-  <div fullscreen class="router" layout-align="center center" layout-fill layout="row">
-    <router-outlet></router-outlet>
+<div>
+  <div>
+    <router-outlet class="outlet"></router-outlet>
   </div>
 </div>
