@@ -44,7 +44,10 @@ public class TransformerTicket extends Transformer {
 					if (grandChild.get("id").asLong() == 23800557)
 						temp.setDivision((String) setField(grandChild.get("value"), false,false));
 					else if (grandChild.get("id").asLong() == 33835867)
-						temp.setEffort((double) setField(grandChild.get("value"), true, true));
+						temp.setEffort(temp.getEffort() + (double) setField(grandChild.get("value"), true, true));
+					else if (grandChild.get("id").asLong() == 54071688)
+						temp.setEffort(temp.getEffort() +(double) setField(grandChild.get("value"), true, true));
+					
 				}
 				
 				if (this.getFilter()!=null && this.getFilter().apply(temp))
