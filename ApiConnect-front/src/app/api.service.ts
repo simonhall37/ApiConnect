@@ -18,10 +18,15 @@ export class ApiService {
   }
 
   public putProfile(profile: Profile){
-    return this.httpClient.put<Profile>(API+'/profiles/'+profile.name,profile);
+    return this.httpClient.put<Profile>(API+'/profiles/'+profile.id,profile);
   }
 
   public deleteProfile(profile: Profile){
     return this.httpClient.delete<Profile>(API + '/profiles/'+profile.name);
   }
+
+  public postProfile(profile: Profile){
+    return this.httpClient.post<Profile>(API + '/profiles',profile);
+  }
+
 }
