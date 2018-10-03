@@ -72,7 +72,8 @@ public class CSVService {
 		for (Object o : input) {
 			for (Method m : methods) {
 				try {
-					sb.append(m.invoke(o, new Object[] {}) + ",");
+					Object val = m.invoke(o, new Object[] {});
+					sb.append(String.valueOf(val).replaceAll(",", "-") + ",");
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 					log.error("Can't access method " + m.getName(),e);
 					sb.append(",");
