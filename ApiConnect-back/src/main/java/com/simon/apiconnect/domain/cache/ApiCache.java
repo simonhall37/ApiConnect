@@ -17,6 +17,10 @@ public class ApiCache {
 		this.summary = summary;
 	}
 	
+	public void wipeContent() {
+		this.content = new ArrayList<>();
+	}
+	
 	/* getters and setters */
 	public ApiCacheSummary getSummary() {
 		return summary;
@@ -33,5 +37,7 @@ public class ApiCache {
 	public void setContent(List<Object> content) {
 		this.content = content;
 	}
+
+
 
 }
