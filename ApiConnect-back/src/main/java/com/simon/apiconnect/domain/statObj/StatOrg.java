@@ -130,7 +130,7 @@ public class StatOrg {
 					bundle.setBalance(bundle.getBalance() - Math.round(100*t.getTotalEffort()/60)/100.0);
 					t.setTotalEffort(toCorrect.get(t.getZenTicketId()));
 					bundle.setBalance(bundle.getBalance() + Math.round(100*t.getTotalEffort()/60)/100.00);
-					System.out.println("Corrected " + t.getZenTicketId());
+//					System.out.println("Corrected " + t.getZenTicketId());
 				}
 			}
 		}
