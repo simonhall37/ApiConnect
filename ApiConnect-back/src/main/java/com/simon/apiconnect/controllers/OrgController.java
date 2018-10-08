@@ -80,6 +80,7 @@ public class OrgController {
 	@RequestMapping(value = "/ticket/report")
 	public void getTicketReport(HttpServletResponse response) {
 		
+		long startTime = System.currentTimeMillis();
 		List<Object> tickets = this.bundleService.getAllTickets();
 		List<String> toInclude = this.bundleService.getDefaultTicketColumns();
 		
@@ -91,6 +92,7 @@ public class OrgController {
 		} catch (IOException e) {
 			log.error("IOException",e);
 		}
+		log.info("Report generated in " + (System.currentTimeMillis() - startTime)/1000.0);
 	}
 	
 }
