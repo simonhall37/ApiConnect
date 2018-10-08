@@ -88,19 +88,43 @@ public class BundleService {
 			return false;
 	}
 
+	private Map<Long,User> getUsersById() {
+		Map<Long, User> requesters = null;
+		requesters = this.cacheRepo.getLookupBySourceAndKey("users", "Id").getDataCasted();
+		if (requesters==null) {
+			log.info("Need to generate user lookup manually");
+			requesters = toSimpleMap(getObjectFromCache("users", User.class, true), "Id", User.class);
+		}
+		return requesters;
+	}
+	
+	private Map<Long,Org> getOrgsById() {
+		Map<Long, Org> orgs = null;
+		orgs = this.cacheRepo.getLookupBySourceAndKey("organisations", "Id").getDataCasted();
+		if (orgs==null) {
+			log.info("Need to generate Org lookup manually");
+			orgs = toSimpleMap(getObjectFromCache("organisations", Org.class, true), "Id", Org.class);
+		}
+		return orgs;
+	}
+	
 	public StatOrg populateOrgTickets(StatOrg org, boolean print) {
 
+		if (this.cacheRepo.getLookups().size() ==0) {
+			this.cacheRepo.getCaches();
+		}
+		
 		// Clear the existing tickets
 		org.getBundles().stream().forEachOrdered(b -> b.wipeTickets());
 		
 		// Get the tickets
 		List<Ticket> tickets = getObjectFromCache("tickets", Ticket.class, true);
 
-		// get the users
-		Map<Long, User> requesters = toSimpleMap(getObjectFromCache("users", User.class, true), "Id", User.class);
+		// get the lookups from cache if available
+		Map<Long,User> requesters = getUsersById();
 	
 		// get the Orgs
-		Map<Long, Org> orgs = toSimpleMap(getObjectFromCache("organisations", Org.class, true), "Id", Org.class);
+		Map<Long, Org> orgs = getOrgsById();
 
 		try {
 			org.setOrgName(orgs.get(org.getZendeskId()).getName());
