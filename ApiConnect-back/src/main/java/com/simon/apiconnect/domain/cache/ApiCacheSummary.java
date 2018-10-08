@@ -1,6 +1,8 @@
 package com.simon.apiconnect.domain.cache;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -18,10 +20,12 @@ public class ApiCacheSummary {
 	private String updatedOn;
 	private Filter filter;
 	private Map<String,String> params;
+	private List<String[]> lookupSummaries;
 	private boolean disk;
 
 	public ApiCacheSummary() {	
 		this.setParams(new HashMap<>());
+		this.lookupSummaries = new ArrayList<>();
 	}
 	
 	public ApiCacheSummary(String name, String path, String profileName, SourceType source, Filter filter) {
@@ -44,6 +48,14 @@ public class ApiCacheSummary {
 			sb.append(e.getKey() + "=" + e.getValue() + "&");
 		}
 		return sb.subSequence(0, sb.length()-1).toString();
+	}
+	
+	public void addLookup(String lookupName, String keyName) {
+		this.lookupSummaries.add(new String[] {lookupName,keyName});
+	}
+	
+	public boolean removeLookup(String lookupName) {
+		return this.lookupSummaries.removeIf(pair -> pair[0].equalsIgnoreCase(lookupName));
 	}
 
 	public String getName() {
@@ -116,6 +128,14 @@ public class ApiCacheSummary {
 
 	public void setDisk(boolean disk) {
 		this.disk = disk;
+	}
+
+	public List<String[]> getLookupSummaries() {
+		return lookupSummaries;
+	}
+
+	public void setLookupSummaries(List<String[]> lookupSummaries) {
+		this.lookupSummaries = lookupSummaries;
 	}
 	
 	
