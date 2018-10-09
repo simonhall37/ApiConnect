@@ -1,11 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import {MatButtonModule } from '@angular/material/button';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from "@angular/common/http";
 import {FormsModule} from '@angular/forms';
@@ -31,16 +26,10 @@ const appRoutes: Routes = [
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    MatToolbarModule,
-    MatCardModule,
-    MatTableModule,
-    MatIconModule,
     HttpClientModule,
     FormsModule,
-    MatButtonModule,
     RouterModule.forRoot(
       appRoutes
-      // , { enableTracing: true }
     )
   ],
   providers: [],

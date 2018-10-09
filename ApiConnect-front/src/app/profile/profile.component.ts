@@ -3,7 +3,6 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 import {Profile, ApiConnection} from '../profile/profile';
 import {ApiService} from '../api.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatTable } from '@angular/material';
 
 class Message {
   type: string;
@@ -23,7 +22,6 @@ export class ProfileComponent implements OnInit {
 
   message: Message;
   profiles: Profile[] = [];
-  expandedElement: Profile;
   newName: string;
 
   constructor(private apiService: ApiService) {}
