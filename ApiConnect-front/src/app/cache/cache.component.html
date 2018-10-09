@@ -1,1 +1,130 @@
-<p>Cache Component</p>
+<div class="container-fluid">
+  <div class="row text-center">
+    <div class="col-12">
+      <div class="card padding">
+        <div class="card-body row">
+          <div class="add-summary col-4">
+            <input
+              class="add-summary-text"
+              placeholder="summary name..."
+              [(ngModel)]="newName"
+              (keypress)="add($event)"
+            > <!-- write function! -->
+            <span class="fa-stack fa-2x primary" (click)="addCacheSummary()"> <!-- write function!  -->
+              <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+              <i class="fas fa-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="message col-8" [hidden]="!message.show" [ngClass]="{'error-border': message.type==='error'}">
+            <span class="primary">
+              <i class="fas fa-2x" aria-hidden="true"
+                [ngClass]="{'fa-exclamation-triangle error': message.type==='error','fa-clipboard-check' : message.type==='info'}"
+              ></i>
+            </span>
+            <div class="message-content"> {{message.content}} </div>
+            <span class="primary" (click)="hideMessage()">
+              <i class="fas fa-times" aria-hidden="true"
+                  [ngClass]="{'error': message.type==='error'}"
+              ></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card padding row" *ngFor="let summary of summaries">
+        <div class="card-body">
+            <h2 class="card-title">
+              <input   class="read-only"
+                      [(ngModel)]="summary.name"
+                      [readonly]="!summary.editMode"
+                      [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
+                      (keypress)="updateCacheSummary($event,summary)"
+                      #cmp
+                      tabindex="{{3 * summaries.indexOf(summary)}}"
+                      id="{{summaries.indexOf(summary)}}"
+                      > <!-- implement function! -->
+              <span class="fa-stack fa-2x primary" (click)="editCacheSummary(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
+                     aria-hidden="true"
+                     [ngClass]="{'fa-pencil-alt': !summary.editMode,'fa-check': summary.editMode}"
+                     > <!-- implement function -->
+                </i>
+              </span>
+              <span class="fa-stack fa-2x primary" (click)="removeCacheSummary(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+              </span> <!-- implement function -->
+              <span class="fa-stack fa-2x primary" (click)="addFilter(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i class="fas fa-filter fa-stack-1x fa-inverse" aria-hidden="true"></i>
+              </span> <!-- implement function -->
+              <span class="fa-stack fa-2x primary" (click)="addLookup(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i class="fas fa-search fa-stack-1x fa-inverse" aria-hidden="true"></i>
+              </span> <!-- implement function -->
+              <span class="fa-stack fa-2x primary" (click)="addParam(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i class="fas fa-question fa-stack-1x fa-inverse" aria-hidden="true"></i>
+              </span> <!-- implement function -->
+          </h2>
+          <div class="container">
+            <form>
+              <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="path-{{summaries.indexOf(summary)}}">Path:</label>
+                <div class="col-sm-4">
+                  <input   class="read-only form-control"
+                        [(ngModel)]="summary.path"
+                        [readonly]="!summary.editMode"
+                        [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
+                        (keypress)="updateCacheSummary($event,summary)"
+                        type="text"
+                        name="path-{{summaries.indexOf(summary)}}"
+                        id="path-{{summaries.indexOf(summary)}}"
+                        > <!-- implement function! -->
+                </div>
+                <label class="col-sm-2 col-form-label" for="source-{{summaries.indexOf(summary)}}">Source:</label>
+                <div class="col-sm-4">
+                  <input   class="read-only form-control"
+                        [(ngModel)]="summary.source"
+                        [readonly]="!summary.editMode"
+                        [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
+                        (keypress)="updateCacheSummary($event,summary)"
+                        type="text"
+                        name="source-{{summaries.indexOf(summary)}}"
+                        id="source-{{summaries.indexOf(summary)}}"
+                        > <!-- implement function! -->
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="profileName-{{summaries.indexOf(summary)}}">Profile Name:</label>
+                <div class="col-sm-4">
+                  <input   class="read-only form-control"
+                        [(ngModel)]="summary.profileName"
+                        [readonly]="!summary.editMode"
+                        [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
+                        (keypress)="updateCacheSummary($event,summary)"
+                        type="text"
+                        name="profileName-{{summaries.indexOf(summary)}}"
+                        id="profileName-{{summaries.indexOf(summary)}}"
+                        > <!-- implement function! -->
+                </div>
+                <label class="col-sm-2 col-form-label" for="updatedOn-{{summaries.indexOf(summary)}}">Updated On:</label>
+                <div class="col-sm-4">
+                  <input   class="read-only form-control"
+                        [(ngModel)]="summary.updatedOn"
+                        [readonly]="!summary.editMode"
+                        [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
+                        (keypress)="updateCacheSummary($event,summary)"
+                        type="text"
+                        name="updatedOn-{{summaries.indexOf(summary)}}"
+                        id="updatedOn-{{summaries.indexOf(summary)}}"
+                        > <!-- implement function! -->
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
