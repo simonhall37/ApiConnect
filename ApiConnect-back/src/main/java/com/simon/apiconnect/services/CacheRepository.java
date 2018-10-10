@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simon.apiconnect.domain.cache.ApiCache;
 import com.simon.apiconnect.domain.cache.ApiCacheSummary;
 import com.simon.apiconnect.domain.cache.ApiLookup;
+import com.simon.apiconnect.domain.cache.Pair;
 
 @Repository
 public class CacheRepository {
@@ -52,9 +53,9 @@ public class CacheRepository {
 			toRead = om.readValue(outFile, ApiCache.class);
 			
 			// add lookups locally
-			for (String[] lookup : toRead.getSummary().getLookupSummaries()) {
-				log.info("Trying to generate " + lookup[0] + " from key " + lookup[1] + " from cache " +cacheName);
-				this.lookups.add(new ApiLookup(lookup[0], toRead, lookup[1]));
+			for (Pair lookup : toRead.getSummary().getLookupSummaries()) {
+				log.info("Trying to generate " + lookup.getKey() + " from key " + lookup.getValue() + " from cache " +cacheName);
+				this.lookups.add(new ApiLookup(lookup.getKey(), toRead, lookup.getValue()));
 			}
 			
 			if (cacheImmediately && toRead!=null)

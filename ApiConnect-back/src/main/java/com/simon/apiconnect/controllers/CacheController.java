@@ -27,6 +27,7 @@ import com.simon.apiconnect.domain.Profile;
 import com.simon.apiconnect.domain.cache.ApiCache;
 import com.simon.apiconnect.domain.cache.ApiCacheSummary;
 import com.simon.apiconnect.domain.cache.ApiLookup;
+import com.simon.apiconnect.domain.cache.Pair;
 import com.simon.apiconnect.services.CacheRepository;
 import com.simon.apiconnect.services.ConnectionService;
 import com.simon.apiconnect.services.ProfileRepository;
@@ -87,7 +88,7 @@ public class CacheController {
 		}
 	}
 	
-	@PostMapping(value = "/lookups/create")
+	@PostMapping(value = "/lookups")
 	public ResponseEntity<Boolean> lookup(@RequestBody Map<String, Object> payload) {
 		boolean response = false;
 		if (payload.containsKey("cacheName") && payload.containsKey("lookupName") && payload.containsKey("keyName")) {
@@ -135,7 +136,7 @@ public class CacheController {
 		
 	}
 	
-	@PostMapping(value = "/summaries/create")
+	@PostMapping(value = "/summaries")
 	public ResponseEntity<List<ApiCacheSummary>> cache(@RequestBody List<ApiCacheSummary> summaries) throws JsonParseException, JsonMappingException, IOException {
 		
 		StringBuilder names = new StringBuilder();
@@ -147,19 +148,31 @@ public class CacheController {
 		List<ApiCacheSummary> out = new ArrayList<>();
 		
 		for (ApiCacheSummary summary : summaries) {
-			ApiCache cache = new ApiCache(summary);
-			conService.cache(cache,profileRepo.findByName(cache.getSummary().getProfileName()).get().getByName("zendesk"));
-			this.cacheRepo.save(cache,summary.isDisk());
-			out.add(cache.getSummary());
-			
-			// generate lookups
-			for (String[] pair : cache.getSummary().getLookupSummaries()) {
-				this.cacheRepo.generateLookup(cache.getSummary().getName(),pair[0],pair[1],false);
-			}
+			out.add(executeCache(summary));
 		}
 		
 		return new ResponseEntity<>(out,HttpStatus.OK);
 		
+	}
+	
+	@PostMapping(value="/summaries/{name}")
+	public ResponseEntity<ApiCacheSummary> cache(@PathVariable String name) {
+		ApiCache cache = this.cacheRepo.getByName(name, true);
+		if (cache!=null)return new ResponseEntity<>(executeCache(cache.getSummary()),HttpStatus.OK);
+		else return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+	}
+	
+	private ApiCacheSummary executeCache(ApiCacheSummary summary) {
+		ApiCache cache = new ApiCache(summary);
+		conService.cache(cache,profileRepo.findByName(cache.getSummary().getProfileName()).get().getByName("zendesk"));
+		this.cacheRepo.save(cache,summary.isDisk());
+		
+		// generate lookups
+		for (Pair pair : cache.getSummary().getLookupSummaries()) {
+			this.cacheRepo.generateLookup(cache.getSummary().getName(),pair.getKey(),pair.getValue(),false);
+		}
+		
+		return cache.getSummary();
 	}
 	
 }

@@ -1,10 +1,7 @@
 package com.simon.apiconnect.domain.cache;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.simon.apiconnect.domain.transformers.Filter;
@@ -19,12 +16,12 @@ public class ApiCacheSummary {
 	private int size;
 	private String updatedOn;
 	private Filter filter;
-	private Map<String,String> params;
-	private List<String[]> lookupSummaries;
+	private List<Pair> params;
+	private List<Pair> lookupSummaries;
 	private boolean disk;
 
 	public ApiCacheSummary() {	
-		this.setParams(new HashMap<>());
+		this.params = new ArrayList<>();
 		this.lookupSummaries = new ArrayList<>();
 	}
 	
@@ -38,24 +35,24 @@ public class ApiCacheSummary {
 	}
 	
 	public void addParam(String key, String value) {
-		this.params.put(key, value);
+		this.params.add(new Pair(key,value));
 	}
 	
 	public String getParamString() {
 		if (this.params.size()==0) return "?";
 		StringBuilder sb = new StringBuilder("?");
-		for (Entry<String,String> e : this.params.entrySet()) {
+		for (Pair e : this.params) {
 			sb.append(e.getKey() + "=" + e.getValue() + "&");
 		}
 		return sb.subSequence(0, sb.length()-1).toString();
 	}
 	
 	public void addLookup(String lookupName, String keyName) {
-		this.lookupSummaries.add(new String[] {lookupName,keyName});
+		this.lookupSummaries.add(new Pair(lookupName,keyName));
 	}
 	
 	public boolean removeLookup(String lookupName) {
-		return this.lookupSummaries.removeIf(pair -> pair[0].equalsIgnoreCase(lookupName));
+		return this.lookupSummaries.removeIf(pair -> pair.getKey().equalsIgnoreCase(lookupName));
 	}
 
 	public String getName() {
@@ -114,11 +111,11 @@ public class ApiCacheSummary {
 		this.filter = filter;
 	}
 
-	public Map<String,String> getParams() {
+	public List<Pair> getParams() {
 		return params;
 	}
 
-	public void setParams(Map<String,String> params) {
+	public void setParams(List<Pair> params) {
 		this.params = params;
 	}
 
@@ -130,11 +127,11 @@ public class ApiCacheSummary {
 		this.disk = disk;
 	}
 
-	public List<String[]> getLookupSummaries() {
+	public List<Pair> getLookupSummaries() {
 		return lookupSummaries;
 	}
 
-	public void setLookupSummaries(List<String[]> lookupSummaries) {
+	public void setLookupSummaries(List<Pair> lookupSummaries) {
 		this.lookupSummaries = lookupSummaries;
 	}
 	
