@@ -3,6 +3,12 @@ import {Filter} from './filter';
 export class Pair {
   key: string;
   value: string;
+  editMode: boolean = false;
+
+  constructor(key: string, value: string){
+    this.key = key;
+    this.value = value;
+  }
 }
 
 export class CacheSummary {
@@ -11,8 +17,10 @@ export class CacheSummary {
   profileName: string;
   source: string;
   updatedOn: string;
-  filters: Filter[];
+  size: number;
+  filter: Filter;
   params: Pair[];
   lookupSummaries: Pair[];
   editMode: boolean;
+  inProgress: boolean;
 }

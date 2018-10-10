@@ -65,7 +65,15 @@
               <span class="fa-stack fa-2x primary" (click)="addParam(summary)">
                 <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
                 <i class="fas fa-question fa-stack-1x fa-inverse" aria-hidden="true"></i>
-              </span> <!-- implement function -->
+              </span>
+              <span class="fa-stack fa-2x primary" (click)="executeCache(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i  class="fas fa-play fa-stack-1x fa-inverse"
+                    aria-hidden="true"
+                    [ngClass]="{'fa-play': !summary.inProgress,'fa-spinner': summary.inProgress}"
+                    >
+                </i>
+              </span>
           </h2>
           <div class="container">
             <form>
@@ -119,6 +127,104 @@
                         name="updatedOn-{{summaries.indexOf(summary)}}"
                         id="updatedOn-{{summaries.indexOf(summary)}}"
                         > <!-- implement function! -->
+                </div>
+              </div>
+              <div *ngIf="summary.filter!=null" class="card-body">
+                <h5>Filter</h5>
+                <div class="form-group row ">
+                  <label class="col-sm-1 col-form-label" for="filterType-{{summaries.indexOf(summary)}}">Type:</label>
+                  <div class="col-sm-2">
+                    <input   class="read-only form-control"
+                          [(ngModel)]="summary.filter.type"
+                          [readonly]="!summary.editMode"
+                          [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
+                          (keypress)="updateCacheSummary($event,summary)"
+                          type="text"
+                          name="filterType-{{summaries.indexOf(summary)}}"
+                          id="filterType-{{summaries.indexOf(summary)}}"
+                          > <!-- implement function! -->
+                  </div>
+                  <label class="col-sm-1 col-form-label" for="validString-{{summaries.indexOf(summary)}}">Lookup Value:</label>
+                  <div class="col-sm-2">
+                    <input   class="read-only form-control"
+                          [(ngModel)]="summary.filter.validString"
+                          [readonly]="!summary.editMode"
+                          [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
+                          (keypress)="updateCacheSummary($event,summary)"
+                          type="text"
+                          name="validString-{{summaries.indexOf(summary)}}"
+                          id="validString-{{summaries.indexOf(summary)}}"
+                          > <!-- implement function! -->
+                  </div>
+                  <label class="col-sm-1 col-form-label" for="targetField-{{summaries.indexOf(summary)}}">Target Field:</label>
+                  <div class="col-sm-2">
+                    <input   class="read-only form-control"
+                          [(ngModel)]="summary.filter.targetField"
+                          [readonly]="!summary.editMode"
+                          [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
+                          (keypress)="updateCacheSummary($event,summary)"
+                          type="text"
+                          name="targetField-{{summaries.indexOf(summary)}}"
+                          id="targetField-{{summaries.indexOf(summary)}}"
+                          > <!-- implement function! -->
+                  </div>
+                  <div class="col-sm-3">
+                    <span class="fa-stack fa-2x primary" (click)="editCacheSummary(summary)">
+                      <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                      <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
+                           aria-hidden="true"
+                           [ngClass]="{'fa-pencil-alt': !summary.editMode,'fa-check': summary.editMode}"
+                           > <!-- implement function -->
+                      </i>
+                    </span>
+                    <span class="fa-stack fa-2x primary" (click)="removeCacheSummary(summary)">
+                      <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                      <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                    </span> <!-- implement function -->
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="summary.params && summary.params.length>0" class="card-body">
+                <h5>Params</h5>
+                <div class="form-group row " *ngFor="let param of summary.params">
+                  <label class="col-sm-2 col-form-label" for="key-{{summaries.indexOf(summary)}}-{{param.key}}">Key:</label>
+                  <div class="col-sm-2">
+                    <input   class="read-only form-control"
+                          [(ngModel)]="param.key"
+                          [readonly]="!param.editMode"
+                          [ngClass]="{'read-only': !param.editMode,'editMode' : param.editMode}"
+                          (keypress)="updateCacheSummarySubObject($event,summary,param)"
+                          type="text"
+                          name="key-{{summaries.indexOf(summary)}}-{{param.key}}"
+                          id="key-{{summaries.indexOf(summary)}}-{{param.key}}"
+                          > <!-- implement function! -->
+                  </div>
+                  <label class="col-sm-2 col-form-label" for="value-{{summaries.indexOf(summary)}}-{{param.value}}">Value:</label>
+                  <div class="col-sm-2">
+                    <input   class="read-only form-control"
+                          [(ngModel)]="param.value"
+                          [readonly]="!param.editMode"
+                          [ngClass]="{'read-only': !param.editMode,'editMode' : param.editMode}"
+                          (keypress)="updateCacheSummarySubObject($event,summary,param)"
+                          type="text"
+                          name="value-{{summaries.indexOf(summary)}}-{{param.value}}"
+                          id="value-{{summaries.indexOf(summary)}}-{{param.value}}"
+                          > <!-- implement function! -->
+                  </div>
+                  <div class="col-sm-2">
+                    <span class="fa-stack fa-2x primary" (click)="editParam(param)">
+                      <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                      <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
+                           aria-hidden="true"
+                           [ngClass]="{'fa-pencil-alt': !param.editMode,'fa-check': param.editMode}"
+                           >
+                      </i>
+                    </span>
+                    <span class="fa-stack fa-2x primary" (click)="removeParam(summary,param)">
+                      <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                      <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                    </span> <!-- implement function -->
+                  </div>
                 </div>
               </div>
             </form>

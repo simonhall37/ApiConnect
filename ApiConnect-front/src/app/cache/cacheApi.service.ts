@@ -29,4 +29,8 @@ export class CacheApiService {
     return this.httpClient.post<CacheSummary>(API + '/cache/summaries/',summary);
   }
 
+  public cache(summary: CacheSummary){
+    return this.httpClient.post<CacheSummary>(API + '/cache/summaries/' + summary.name,summary);
+  }
+
 }

@@ -1,5 +1,6 @@
 export class Filter {
   type: string;
+  editMode: boolean = false;
 }
 
 export class TextFilter extends Filter {
