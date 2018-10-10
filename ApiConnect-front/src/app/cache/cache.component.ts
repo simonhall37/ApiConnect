@@ -82,6 +82,29 @@ export class CacheComponent implements OnInit  {
         }
       }
     }
+    updateCacheSummaryFilter(event, summary:CacheSummary, filter: Filter) {
+      if (event.keyCode === 13){
+        if (filter.type != null && filter.type !=""){
+          if (filter instanceof TextFilter){
+            var tf: TextFilter = filter as TextFilter;
+            if ((tf.targetField!=null && tf.targetField != "")  && (tf.validString!=null && tf.validString != "")){
+              filter.editMode = !filter.editMode;
+              this.update(summary);
+            }
+            else {
+              this.message.type="error";
+              this.message.show = true;
+              this.message.content = "Empty value not allowed!";
+            }
+          }
+        }
+        else {
+          this.message.type="error";
+          this.message.show = true;
+          this.message.content = "Empty value not allowed!";
+        }
+      }
+    }
     removeParam(summary: CacheSummary,param: Pair){
       var index = summary.params.indexOf(param);
       if (index > -1) {
@@ -89,8 +112,27 @@ export class CacheComponent implements OnInit  {
       }
       this.update(summary);
     }
+    removeLookup(summary: CacheSummary,lookup: Pair){
+      var index = summary.lookupSummaries.indexOf(lookup);
+      if (index > -1) {
+        summary.lookupSummaries.splice(index, 1);
+      }
+      this.update(summary);
+    }
+    removeFilter(summary: CacheSummary,filter: Filter){
+      summary.filter = null;
+      this.update(summary);
+    }
     addParam(summary: CacheSummary){
       summary.params.push(new Pair("",""));
+    }
+    addLookup(summary: CacheSummary){
+      summary.lookupSummaries.push(new Pair("",""));
+    }
+    addFilter(summary: CacheSummary){
+      if (summary.filter === null){
+        summary.filter = new TextFilter();
+      }
     }
 
     // api operations
