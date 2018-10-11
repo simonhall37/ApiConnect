@@ -33,16 +33,8 @@
       <div class="card padding row" *ngFor="let summary of summaries">
         <div class="card-body">
             <h2 class="card-title">
-              <input   class="read-only"
-                      [(ngModel)]="summary.name"
-                      [readonly]="!summary.editMode"
-                      [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
-                      (keypress)="updateCacheSummary($event,summary)"
-                      #cmp
-                      tabindex="{{3 * summaries.indexOf(summary)}}"
-                      id="{{summaries.indexOf(summary)}}"
-                      > <!-- implement function! -->
-              <span class="fa-stack fa-2x primary" (click)="editCacheSummary(summary)">
+              {{summary.name}}
+              <span class="fa-stack fa-2x primary" (click)="editSummary(summary)">
                 <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
                 <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
                      aria-hidden="true"
@@ -50,21 +42,9 @@
                      > <!-- implement function -->
                 </i>
               </span>
-              <span class="fa-stack fa-2x primary" (click)="removeCacheSummary(summary)">
+              <span class="fa-stack fa-2x primary" (click)="removeSummary(summary)">
                 <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
                 <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
-              </span> <!-- implement function -->
-              <span class="fa-stack fa-2x primary" (click)="addFilter(summary)">
-                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
-                <i class="fas fa-filter fa-stack-1x fa-inverse" aria-hidden="true"></i>
-              </span> <!-- implement function -->
-              <span class="fa-stack fa-2x primary" (click)="addLookup(summary)">
-                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
-                <i class="fas fa-search fa-stack-1x fa-inverse" aria-hidden="true"></i>
-              </span> <!-- implement function -->
-              <span class="fa-stack fa-2x primary" (click)="addParam(summary)">
-                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
-                <i class="fas fa-question fa-stack-1x fa-inverse" aria-hidden="true"></i>
               </span>
               <span class="fa-stack fa-2x primary" (click)="executeCache(summary)">
                 <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
@@ -90,16 +70,13 @@
                         id="path-{{summaries.indexOf(summary)}}"
                         > <!-- implement function! -->
                 </div>
-                <label class="col-sm-2 col-form-label" for="source-{{summaries.indexOf(summary)}}">Source:</label>
+                <label class="col-sm-2 col-form-label" for="size-{{summaries.indexOf(summary)}}">Size:</label>
                 <div class="col-sm-4">
                   <input   class="read-only form-control"
-                        [(ngModel)]="summary.source"
-                        [readonly]="!summary.editMode"
-                        [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
-                        (keypress)="updateCacheSummary($event,summary)"
+                        placeholder="{{summary.size}}"
+                        [readonly]="true"
                         type="text"
-                        name="source-{{summaries.indexOf(summary)}}"
-                        id="source-{{summaries.indexOf(summary)}}"
+                        name="size-{{summaries.indexOf(summary)}}"
                         > <!-- implement function! -->
                 </div>
               </div>
@@ -119,14 +96,39 @@
                 <label class="col-sm-2 col-form-label" for="updatedOn-{{summaries.indexOf(summary)}}">Updated On:</label>
                 <div class="col-sm-4">
                   <input   class="read-only form-control"
-                        [(ngModel)]="summary.updatedOn"
+                        placeholder="{{summary.updatedOn}}"
+                        [readonly]="true"
+                        type="text"
+                        name="updatedOn-{{summaries.indexOf(summary)}}"
+                        > <!-- implement function! -->
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-2 col-form-label" for="source-{{summaries.indexOf(summary)}}">Source:</label>
+                <div class="col-sm-4">
+                  <input   class="read-only form-control"
+                        [(ngModel)]="summary.source"
                         [readonly]="!summary.editMode"
                         [ngClass]="{'read-only': !summary.editMode,'editMode' : summary.editMode}"
                         (keypress)="updateCacheSummary($event,summary)"
                         type="text"
-                        name="updatedOn-{{summaries.indexOf(summary)}}"
-                        id="updatedOn-{{summaries.indexOf(summary)}}"
+                        name="source-{{summaries.indexOf(summary)}}"
+                        id="source-{{summaries.indexOf(summary)}}"
                         > <!-- implement function! -->
+                </div>
+                <div class="col-sm6">
+                  <span class="fa-stack fa-2x primary" (click)="addFilter(summary)">
+                    <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                    <i class="fas fa-filter fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                  </span>
+                  <span class="fa-stack fa-2x primary" (click)="addLookup(summary)">
+                    <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                    <i class="fas fa-search fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                  </span>
+                  <span class="fa-stack fa-2x primary" (click)="addParam(summary)">
+                    <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                    <i class="fas fa-question fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                  </span>
                 </div>
               </div>
               <div class="card padding row">
@@ -172,7 +174,7 @@
                             > <!-- implement function! -->
                     </div>
                     <div class="col-sm-6">
-                      <span class="fa-stack fa-2x primary" (click)="editFilter(summary.filter)">
+                      <span class="fa-stack fa-2x primary" (click)="editFilter(summary,summary.filter)">
                         <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
                         <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
                              aria-hidden="true"
@@ -217,7 +219,7 @@
                             > <!-- implement function! -->
                     </div>
                     <div class="col-sm-2">
-                      <span class="fa-stack fa-2x primary" (click)="editParam(param)">
+                      <span class="fa-stack fa-2x primary" (click)="editParam(summary,param)">
                         <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
                         <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
                              aria-hidden="true"
@@ -229,6 +231,51 @@
                         <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
                         <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
                       </span> <!-- implement function -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card padding row">
+                <div *ngIf="summary.lookupSummaries && summary.lookupSummaries.length>0" class="card-body">
+                  <h5>Lookups</h5>
+                  <div class="form-group row " *ngFor="let lkp of summary.lookupSummaries">
+                    <label class="col-sm-2 col-form-label" for="key-{{summaries.indexOf(summary)}}-{{lkp.key}}">Lookup Name:</label>
+                    <div class="col-sm-2">
+                      <input   class="read-only form-control"
+                            [(ngModel)]="lkp.key"
+                            [readonly]="!lkp.editMode"
+                            [ngClass]="{'read-only': !lkp.editMode,'editMode' : lkp.editMode}"
+                            (keypress)="updateCacheSummarySubObject($event,summary,lkp)"
+                            type="text"
+                            name="key-{{summaries.indexOf(summary)}}-{{lkp.key}}"
+                            id="key-{{summaries.indexOf(summary)}}-{{lkp.key}}"
+                            > <!-- implement function! -->
+                    </div>
+                    <label class="col-sm-2 col-form-label" for="value-{{summaries.indexOf(summary)}}-{{lkp.value}}">Key:</label>
+                    <div class="col-sm-2">
+                      <input   class="read-only form-control"
+                            [(ngModel)]="lkp.value"
+                            [readonly]="!lkp.editMode"
+                            [ngClass]="{'read-only': !lkp.editMode,'editMode' : lkp.editMode}"
+                            (keypress)="updateCacheSummarySubObject($event,summary,lkp)"
+                            type="text"
+                            name="value-{{summaries.indexOf(summary)}}-{{lkp.value}}"
+                            id="value-{{summaries.indexOf(summary)}}-{{lkp.value}}"
+                            > <!-- implement function! -->
+                    </div>
+                    <div class="col-sm-2">
+                      <span class="fa-stack fa-2x primary" (click)="editLookup(summary,lkp)">
+                        <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                        <i   class="fas fa-pencil-alt fa-stack-1x fa-inverse"
+                             aria-hidden="true"
+                             [ngClass]="{'fa-pencil-alt': !lkp.editMode,'fa-check': lkp.editMode}"
+                             >
+                        </i>
+                      </span>
+                      <span class="fa-stack fa-2x primary" (click)="removeLookup(summary,lkp)">
+                        <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                        <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                      </span>
                     </div>
                   </div>
                 </div>

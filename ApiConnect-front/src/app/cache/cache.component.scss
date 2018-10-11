@@ -13,9 +13,14 @@ $warning-colour: #FDE74C;
 }
 
 .padding {
-  padding-left: 15%;
-  padding-right: 15%;
+  padding-left: 5%;
+  padding-right: 5%;
   padding-top: 15px;
+}
+
+
+.container {
+    max-width: 100%;
 }
 
 .error-border {

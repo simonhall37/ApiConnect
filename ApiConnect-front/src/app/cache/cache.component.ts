@@ -52,17 +52,26 @@ export class CacheComponent implements OnInit  {
       else this.message.content = err.message;
       this.message.show = true;
     }
-    editParam(param:Pair){
-      param.editMode = !param.editMode;
-      var d = new Date(+param.value*1000);
-      console.log(d);
+    // edit items
+    editParam(summary: CacheSummary,param:Pair){
+      if (param.editMode){
+        this.updateSubObject(summary,param);
+      }
+      else param.editMode = !param.editMode;
     }
-    editFilter(filter: Filter){
-      filter.editMode = !filter.editMode;
+    editFilter(summary:CacheSummary,filter: Filter){
+      if (filter.editMode){
+        this.updateFilter(summary,filter);
+      }
+      else filter.editMode = !filter.editMode;
     }
-    editLookup(lookup:Pair){
-      lookup.editMode = !lookup.editMode;
+    editLookup(summary:CacheSummary,lookup:Pair){
+      if (lookup.editMode){
+        this.updateSubObject(summary,lookup);
+      }
+      else lookup.editMode = !lookup.editMode;
     }
+    // update summary or sub objects
     updateCacheSummary(event, summary:CacheSummary) {
       if (event.keyCode === 13){
         summary.editMode = !summary.editMode;
@@ -71,40 +80,47 @@ export class CacheComponent implements OnInit  {
     }
     updateCacheSummarySubObject(event, summary:CacheSummary, pair: Pair) {
       if (event.keyCode === 13){
-        if (pair.key!="" && pair.value!=""){
-          pair.editMode = !pair.editMode;
-          this.update(summary);
+        this.updateSubObject(summary,pair);
+      }
+    }
+    updateSubObject(summary:CacheSummary, pair:Pair){
+      if (pair.key!="" && pair.value!=""){
+        pair.editMode = !pair.editMode;
+        this.update(summary);
+      }
+      else {
+        this.message.type="error";
+        this.message.show = true;
+        this.message.content = "Empty value not allowed!";
+      }
+    }
+    updateFilter(summary: CacheSummary, filter : Filter){
+      if (filter.type != null && filter.type !=""){
+        if (filter instanceof TextFilter){
+          var tf: TextFilter = filter as TextFilter;
+          if ((tf.targetField!=null && tf.targetField != "")  && (tf.validString!=null && tf.validString != "")){
+            filter.editMode = !filter.editMode;
+            this.update(summary);
+          }
+          else {
+            this.message.type="error";
+            this.message.show = true;
+            this.message.content = "Empty value not allowed!";
+          }
         }
-        else {
-          this.message.type="error";
-          this.message.show = true;
-          this.message.content = "Empty value not allowed!";
-        }
+      }
+      else {
+        this.message.type="error";
+        this.message.show = true;
+        this.message.content = "Empty value not allowed!";
       }
     }
     updateCacheSummaryFilter(event, summary:CacheSummary, filter: Filter) {
       if (event.keyCode === 13){
-        if (filter.type != null && filter.type !=""){
-          if (filter instanceof TextFilter){
-            var tf: TextFilter = filter as TextFilter;
-            if ((tf.targetField!=null && tf.targetField != "")  && (tf.validString!=null && tf.validString != "")){
-              filter.editMode = !filter.editMode;
-              this.update(summary);
-            }
-            else {
-              this.message.type="error";
-              this.message.show = true;
-              this.message.content = "Empty value not allowed!";
-            }
-          }
-        }
-        else {
-          this.message.type="error";
-          this.message.show = true;
-          this.message.content = "Empty value not allowed!";
-        }
+        this.updateFilter(summary,filter);
       }
     }
+    // remove sub objects
     removeParam(summary: CacheSummary,param: Pair){
       var index = summary.params.indexOf(param);
       if (index > -1) {
@@ -123,15 +139,27 @@ export class CacheComponent implements OnInit  {
       summary.filter = null;
       this.update(summary);
     }
+    // add sub objects
     addParam(summary: CacheSummary){
       summary.params.push(new Pair("",""));
+      summary.params.forEach((p) => {
+        if (p.key == null || p.key == "" || p.value == null || p.key == null) {
+          p.editMode = true;
+        }
+      });
     }
     addLookup(summary: CacheSummary){
       summary.lookupSummaries.push(new Pair("",""));
+      summary.lookupSummaries.forEach((lkp) => {
+        if (lkp.key == null || lkp.key == "" || lkp.value == null || lkp.key == null) {
+          lkp.editMode = true;
+        }
+      });
     }
     addFilter(summary: CacheSummary){
       if (summary.filter === null){
         summary.filter = new TextFilter();
+        summary.filter.editMode = true;
       }
     }
 
@@ -184,6 +212,21 @@ export class CacheComponent implements OnInit  {
         this.message.content = "Already performing cache, wait until it is finished!";
         this.message.show = true;
       }
+    }
+
+    // delete
+    removeSummary(element: CacheSummary){
+      this.cacheApiService.deleteCacheSummary(element).subscribe(
+        (response) => {
+          this.summaries.splice(this.summaries.indexOf(element),1);
+          this.message.type = "info";
+          this.message.content = "Cache Summary deleted successfully";
+          this.message.show = true;
+        },
+        (err: HttpErrorResponse) => {
+          this.handleError(err);
+        }
+      );
     }
 
 }
