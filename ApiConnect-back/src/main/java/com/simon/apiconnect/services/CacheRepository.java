@@ -100,6 +100,20 @@ public class CacheRepository {
 		}
 	}
 	
+	public boolean delete(ApiCache cache) {
+		boolean deleted = false;
+		deleted = this.caches.removeIf(c -> c.getSummary().getName().equalsIgnoreCase(cache.getSummary().getName()));
+		log.info("Deleted from cache?" + deleted);
+		File outFile = new File(this.OUT_DIR);
+		for (File cacheFile : outFile.listFiles()) {
+			if (cacheFile.getName().equalsIgnoreCase(cache.getSummary().getName()+".json")) {
+				log.info("Deleted " + cache.getSummary().getName() + " from disk storage");
+				return cacheFile.delete();
+			}
+		}
+		return false;
+	}
+	
 	public List<String> getCacheNamesOnDisk(){
 		File outFile = new File(this.OUT_DIR);
 		return Arrays.stream(outFile.listFiles()).map(f -> f.getName()).collect(Collectors.toList());

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ import com.simon.apiconnect.domain.cache.ApiCache;
 import com.simon.apiconnect.domain.cache.ApiCacheSummary;
 import com.simon.apiconnect.domain.cache.ApiLookup;
 import com.simon.apiconnect.domain.cache.Pair;
+import com.simon.apiconnect.exceptions.ProfileNotFoundException;
 import com.simon.apiconnect.services.CacheRepository;
 import com.simon.apiconnect.services.ConnectionService;
 import com.simon.apiconnect.services.ProfileRepository;
@@ -160,6 +162,18 @@ public class CacheController {
 		ApiCache cache = this.cacheRepo.getByName(name, true);
 		if (cache!=null)return new ResponseEntity<>(executeCache(cache.getSummary()),HttpStatus.OK);
 		else return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+	}
+	
+	@DeleteMapping("/summaries/{name}")
+	public ResponseEntity<?> deleteSummary(@PathVariable("name") String name) {
+		ApiCache toDelete = cacheRepo.getByName(name,true);
+		if (toDelete!=null) {
+			boolean deleted = cacheRepo.delete(toDelete);
+			if (deleted)
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 	
 	private ApiCacheSummary executeCache(ApiCacheSummary summary) {
