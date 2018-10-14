@@ -1,9 +1,8 @@
 package com.simon.apiconnect.controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.validation.Valid;
 
@@ -24,12 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.simon.apiconnect.domain.Profile;
 import com.simon.apiconnect.domain.cache.ApiCache;
 import com.simon.apiconnect.domain.cache.ApiCacheSummary;
 import com.simon.apiconnect.domain.cache.ApiLookup;
-import com.simon.apiconnect.domain.cache.Pair;
-import com.simon.apiconnect.exceptions.ProfileNotFoundException;
 import com.simon.apiconnect.services.CacheRepository;
 import com.simon.apiconnect.services.ConnectionService;
 import com.simon.apiconnect.services.ProfileRepository;
@@ -56,7 +52,7 @@ public class CacheController {
 		try{
 			List<ApiCacheSummary> summaries = this.cacheRepo.getSummaries();
 			return new ResponseEntity<>(summaries, HttpStatus.OK);
-		} catch (NullPointerException e) {
+		} catch (NullPointerException | NoSuchElementException e) {
 			log.info("No data for summaries request");
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
@@ -67,60 +63,21 @@ public class CacheController {
 	public ResponseEntity<ApiCacheSummary> getSummary(@PathVariable String name) throws JsonParseException, JsonMappingException, IOException {
 		
 		try{
-			ApiCacheSummary summary = this.cacheRepo.getByName(name, true).getSummary();
+			ApiCacheSummary summary = this.cacheRepo.getByName(name).getSummary();
 			return new ResponseEntity<>(summary, HttpStatus.OK);
-		} catch (NullPointerException e) {
+		} catch (NullPointerException | NoSuchElementException e) {
 			log.info("No data for summary request : " + name);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		
 	}
 	
-	@PutMapping(value="/summaries/{name}")
-	public ResponseEntity<ApiCacheSummary> updateSummary(@PathVariable("name") String name, @Valid @RequestBody ApiCacheSummary summary) {
-		ApiCache cache = this.cacheRepo.getByName(name, true);
-		if (cache == null) {
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-		}
-		else {
-			cache.setSummary(summary);
-			cache.wipeContent();
-			this.cacheRepo.save(cache, true);
-			return new ResponseEntity<>(cache.getSummary(), HttpStatus.OK); 
-		}
-	}
-	
-	@PostMapping(value = "/lookups")
-	public ResponseEntity<Boolean> lookup(@RequestBody Map<String, Object> payload) {
-		boolean response = false;
-		if (payload.containsKey("cacheName") && payload.containsKey("lookupName") && payload.containsKey("keyName")) {
-			response = this.cacheRepo.generateLookup((String)payload.get("cacheName"),(String) payload.get("lookupName"),(String) payload.get("keyName"),true);
-		}
-		try{;
-			return new ResponseEntity<>(response, HttpStatus.CREATED);
-		} catch (NullPointerException e) {
-			log.info("No data for summaries request");
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-	}
-	
 	@GetMapping(value = "/lookups")
-	public ResponseEntity<List<ApiLookup>> getLookups() throws JsonParseException, JsonMappingException {
+	public ResponseEntity<List<ApiLookup>> getlookups() {
 		try{
-			return new ResponseEntity<>(this.cacheRepo.getLookups(), HttpStatus.OK);
+			return new ResponseEntity<>(cacheRepo.getLookups(), HttpStatus.OK);
 		} catch (NullPointerException e) {
-			log.info("No data for summaries request");
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-	}
-	
-	@GetMapping(value = "/lookups/{name}")
-	public ResponseEntity<ApiLookup> getLookup(@PathVariable String name) throws JsonParseException, JsonMappingException, IOException {
-		try{
-//			this.cacheRepo.generateLookup("organisations", "orgById", "Id");
-			return new ResponseEntity<>(this.cacheRepo.getLookup(name), HttpStatus.OK);
-		} catch (NullPointerException e) {
-			log.info("No data for summaries request");
+			log.info("No data for lookups request");
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 	}
@@ -129,63 +86,84 @@ public class CacheController {
 	public ResponseEntity<List<Object>> getContent(@PathVariable String name) throws JsonParseException, JsonMappingException, IOException {
 		
 		try{
-			List<Object> content = this.cacheRepo.getByName(name, true).getContent();
+			List<Object> content = this.cacheRepo.getByName(name).getContent();
 			return new ResponseEntity<>(content, HttpStatus.OK);
-		} catch (NullPointerException e) {
+		} catch (NullPointerException | NoSuchElementException e) {
 			log.info("No data for content request : " + name);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		
 	}
 	
-	@PostMapping(value = "/summaries")
-	public ResponseEntity<List<ApiCacheSummary>> cache(@RequestBody List<ApiCacheSummary> summaries) throws JsonParseException, JsonMappingException, IOException {
-		
-		StringBuilder names = new StringBuilder();
-		for (ApiCacheSummary summary : summaries) {
-			names.append(summary.getName() + ",");
-		}
-		
-		log.info("Caching following items: " + names.substring(0, names.length()-1).toString());
-		List<ApiCacheSummary> out = new ArrayList<>();
-		
-		for (ApiCacheSummary summary : summaries) {
-			out.add(executeCache(summary));
-		}
-		
-		return new ResponseEntity<>(out,HttpStatus.OK);
-		
-	}
-	
-	@PostMapping(value="/summaries/{name}")
-	public ResponseEntity<ApiCacheSummary> cache(@PathVariable String name) {
-		ApiCache cache = this.cacheRepo.getByName(name, true);
-		if (cache!=null)return new ResponseEntity<>(executeCache(cache.getSummary()),HttpStatus.OK);
-		else return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
-	}
-	
 	@DeleteMapping("/summaries/{name}")
 	public ResponseEntity<?> deleteSummary(@PathVariable("name") String name) {
-		ApiCache toDelete = cacheRepo.getByName(name,true);
+		ApiCache toDelete = null;
+		try{
+			toDelete = this.cacheRepo.getByName(name);
+		} catch (NoSuchElementException e) {}
 		if (toDelete!=null) {
-			boolean deleted = cacheRepo.delete(toDelete);
+			boolean deleted = cacheRepo.delete(toDelete.getSummary());
 			if (deleted)
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			else return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
+	
+	@PutMapping(value="/summaries/{name}")
+	public ResponseEntity<ApiCacheSummary> updateSummary(@PathVariable("name") String name, @Valid @RequestBody ApiCacheSummary summary) {
+		ApiCache cache = null;
+		try{
+			cache = this.cacheRepo.getByName(name);
+		} catch (NoSuchElementException e) {
+			log.warn("No Such Element durig PUT");
+		}
+		if (cache == null) {
+			log.info("No content for " + name);
+			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+		}
+		else {
+			cache.setSummary(summary);
+			cache.wipeContent();
+			this.cacheRepo.save(cache);
+			return new ResponseEntity<>(cache.getSummary(), HttpStatus.OK); 
+		}
+	}
+	
+	@PostMapping(value = "/summaries")
+	public ResponseEntity<ApiCacheSummary> cache(@RequestBody ApiCacheSummary summary) throws JsonParseException, JsonMappingException, IOException {
+		
+		ApiCache cache = null;
+		try{
+			cache = this.cacheRepo.getByName(summary.getName());
+		} catch (NoSuchElementException e) {}
+		if (cache == null) {
+			cache = new ApiCache(summary);
+			this.cacheRepo.save(cache);
+			return new ResponseEntity<>(cache.getSummary(),HttpStatus.CREATED);
+		} else {
+			return new ResponseEntity<>(null,HttpStatus.CONFLICT);
+		}
+	}
+	
+	@PostMapping(value="/summaries/{name}")
+	public ResponseEntity<ApiCacheSummary> cache(@PathVariable String name) {
+		ApiCache cache = null;
+		try{
+			cache = this.cacheRepo.getByName(name);
+		} catch (NoSuchElementException e) {}
+		if (cache!=null)
+			return new ResponseEntity<>(executeCache(cache.getSummary()),HttpStatus.OK);
+		else return new ResponseEntity<>(null,HttpStatus.NOT_FOUND);
+	}
+	
 	
 	private ApiCacheSummary executeCache(ApiCacheSummary summary) {
 		ApiCache cache = new ApiCache(summary);
 		conService.cache(cache,profileRepo.findByName(cache.getSummary().getProfileName()).get().getByName("zendesk"));
-		this.cacheRepo.save(cache,summary.isDisk());
-		
-		// generate lookups
-		for (Pair pair : cache.getSummary().getLookupSummaries()) {
-			this.cacheRepo.generateLookup(cache.getSummary().getName(),pair.getKey(),pair.getValue(),false);
-		}
-		
+
+		this.cacheRepo.save(cache);
+
 		return cache.getSummary();
 	}
 	
