@@ -1,5 +1,6 @@
 package com.simon.apiconnect.domain.cache;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,8 @@ public class ApiCache {
 	
 	public void wipeContent() {
 		this.content = new ArrayList<>();
+		this.summary.setSize(0);
+		this.summary.setUpdatedOn(LocalDateTime.now().toString());
 	}
 	
 	/* getters and setters */
