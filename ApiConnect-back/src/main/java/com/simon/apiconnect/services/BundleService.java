@@ -36,13 +36,13 @@ public class BundleService {
 	private ObjectMapper om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> List<T> getObjectFromCache(String name, Class T, boolean fromDisk) {
+	private <T> List<T> getObjectFromCache(String name, Class T) {
 
 		List<T> out = new ArrayList<>();
 		List<Object> initial = null;
 
 		try {
-			initial = cacheRepo.getByName(name, fromDisk).getContent();
+			initial = cacheRepo.getByName(name).getContent();
 		} catch (NullPointerException e) {
 			log.error("Couldn't get the organisation content from cache or disk");
 			return out;
@@ -90,35 +90,34 @@ public class BundleService {
 
 	private Map<Long,User> getUsersById() {
 		Map<Long, User> requesters = null;
-		requesters = this.cacheRepo.getLookupBySourceAndKey("users", "Id").getDataCasted();
+		requesters = this.cacheRepo.getLookupBySourceAndKey("users", "Id").castData();
 		if (requesters==null) {
 			log.info("Need to generate user lookup manually");
-			requesters = toSimpleMap(getObjectFromCache("users", User.class, true), "Id", User.class);
+			requesters = toSimpleMap(getObjectFromCache("users", User.class), "Id", User.class);
 		}
 		return requesters;
 	}
 	
 	private Map<Long,Org> getOrgsById() {
 		Map<Long, Org> orgs = null;
-		orgs = this.cacheRepo.getLookupBySourceAndKey("organisations", "Id").getDataCasted();
+		orgs = this.cacheRepo.getLookupBySourceAndKey("organisations", "Id").castData();
 		if (orgs==null) {
 			log.info("Need to generate Org lookup manually");
-			orgs = toSimpleMap(getObjectFromCache("organisations", Org.class, true), "Id", Org.class);
+			orgs = toSimpleMap(getObjectFromCache("organisations", Org.class), "Id", Org.class);
 		}
 		return orgs;
 	}
 	
 	public StatOrg populateOrgTickets(StatOrg org, boolean print) {
 
-		if (this.cacheRepo.getLookups().size() ==0) {
-			this.cacheRepo.getCaches();
-		}
+		// make sure they are read from disk
+		this.cacheRepo.getCaches();
 		
 		// Clear the existing tickets
 		org.getBundles().stream().forEachOrdered(b -> b.wipeTickets());
 		
 		// Get the tickets
-		List<Ticket> tickets = getObjectFromCache("tickets", Ticket.class, true);
+		List<Ticket> tickets = getObjectFromCache("tickets", Ticket.class);
 
 		// get the lookups from cache if available
 		Map<Long,User> requesters = getUsersById();
