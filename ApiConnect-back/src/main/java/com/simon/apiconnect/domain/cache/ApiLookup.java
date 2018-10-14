@@ -39,6 +39,7 @@ public class ApiLookup {
 
 	public void refresh() throws IllegalArgumentException {
 		generateMap();
+		log.info(this.parent.getContent().size() + " items");
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -113,7 +114,7 @@ public class ApiLookup {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> Map<Long,T> getDataCasted() throws ClassCastException{
+	public <T> Map<Long,T> castData() throws ClassCastException{
 		Map<Long,T> out = new HashMap<>();
 		for (Entry<Long,Object> pair : this.data.entrySet()) {
 			try{
