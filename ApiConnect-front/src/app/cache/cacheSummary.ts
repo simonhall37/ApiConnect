@@ -23,4 +23,5 @@ export class CacheSummary {
   lookupSummaries: Pair[];
   editMode: boolean;
   inProgress: boolean;
+  disk: boolean = true;
 }

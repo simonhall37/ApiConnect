@@ -3,19 +3,43 @@
     <div class="col-12">
       <div class="card padding">
         <div class="card-body row">
-          <div class="add-summary col-4">
-            <input
-              class="add-summary-text"
-              placeholder="summary name..."
-              [(ngModel)]="newName"
-              (keypress)="add($event)"
-            > <!-- write function! -->
-            <span class="fa-stack fa-2x primary" (click)="addCacheSummary()"> <!-- write function!  -->
-              <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
-              <i class="fas fa-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
-            </span>
+          <div class="add-summary col-6">
+            <div class="container">
+              <div class="row">
+                <input
+                  class="add-summary-text col-4"
+                  placeholder="summary name..."
+                  [(ngModel)]="newSummary.name"
+                  (keypress)="add($event)"
+                >
+                <input
+                  class="add-summary-text col-4"
+                  placeholder="source..."
+                  [(ngModel)]="newSummary.source"
+                  (keypress)="add($event)"
+                >
+              </div>
+              <div class="row">
+                <input
+                  class="add-summary-text col-4"
+                  placeholder="path..."
+                  [(ngModel)]="newSummary.path"
+                  (keypress)="add($event)"
+                >
+                <input
+                  class="add-summary-text col-4"
+                  placeholder="profile..."
+                  [(ngModel)]="newSummary.profileName"
+                  (keypress)="add($event)"
+                >
+                <span class="fa-stack fa-2x primary col-2" (click)="createSummary()">
+                  <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                  <i class="fas fa-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                </span>
+              </div>
+            </div>
           </div>
-          <div class="message col-8" [hidden]="!message.show" [ngClass]="{'error-border': message.type==='error'}">
+          <div class="message col" [hidden]="!message.show" [ngClass]="{'error-border': message.type==='error'}">
             <span class="primary">
               <i class="fas fa-2x" aria-hidden="true"
                 [ngClass]="{'fa-exclamation-triangle error': message.type==='error','fa-clipboard-check' : message.type==='info'}"
@@ -53,6 +77,18 @@
                     [ngClass]="{'fa-play': !summary.inProgress,'fa-spinner': summary.inProgress}"
                     >
                 </i>
+              </span>
+              <span class="fa-stack fa-2x primary" (click)="addFilter(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i class="fas fa-filter fa-stack-1x fa-inverse" aria-hidden="true"></i>
+              </span>
+              <span class="fa-stack fa-2x primary" (click)="addLookup(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i class="fas fa-search fa-stack-1x fa-inverse" aria-hidden="true"></i>
+              </span>
+              <span class="fa-stack fa-2x primary" (click)="addParam(summary)">
+                <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                <i class="fas fa-question fa-stack-1x fa-inverse" aria-hidden="true"></i>
               </span>
           </h2>
           <div class="container">
@@ -115,20 +151,6 @@
                         name="source-{{summaries.indexOf(summary)}}"
                         id="source-{{summaries.indexOf(summary)}}"
                         > <!-- implement function! -->
-                </div>
-                <div class="col-sm6">
-                  <span class="fa-stack fa-2x primary" (click)="addFilter(summary)">
-                    <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
-                    <i class="fas fa-filter fa-stack-1x fa-inverse" aria-hidden="true"></i>
-                  </span>
-                  <span class="fa-stack fa-2x primary" (click)="addLookup(summary)">
-                    <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
-                    <i class="fas fa-search fa-stack-1x fa-inverse" aria-hidden="true"></i>
-                  </span>
-                  <span class="fa-stack fa-2x primary" (click)="addParam(summary)">
-                    <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
-                    <i class="fas fa-question fa-stack-1x fa-inverse" aria-hidden="true"></i>
-                  </span>
                 </div>
               </div>
               <div class="card padding row">

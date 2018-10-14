@@ -20,11 +20,12 @@ export class CacheComponent implements OnInit  {
 
   message: Message;
   summaries: CacheSummary[] = [];
-  newName: string;
+  newSummary: CacheSummary;
 
   constructor(private cacheApiService: CacheApiService) {}
 
     ngOnInit() {
+      this.newSummary = new CacheSummary();
       this.cacheApiService.getAllCacheSummaries().subscribe(
         (summaries) => {
           summaries.forEach(
@@ -64,6 +65,7 @@ export class CacheComponent implements OnInit  {
         this.updateFilter(summary,filter);
       }
       else filter.editMode = !filter.editMode;
+
     }
     editLookup(summary:CacheSummary,lookup:Pair){
       if (lookup.editMode){
@@ -96,7 +98,7 @@ export class CacheComponent implements OnInit  {
     }
     updateFilter(summary: CacheSummary, filter : Filter){
       if (filter.type != null && filter.type !=""){
-        if (filter instanceof TextFilter){
+        // if (filter instanceof TextFilter){
           var tf: TextFilter = filter as TextFilter;
           if ((tf.targetField!=null && tf.targetField != "")  && (tf.validString!=null && tf.validString != "")){
             filter.editMode = !filter.editMode;
@@ -107,7 +109,9 @@ export class CacheComponent implements OnInit  {
             this.message.show = true;
             this.message.content = "Empty value not allowed!";
           }
-        }
+        // } else {
+        //   console.log(filter);
+        // }
       }
       else {
         this.message.type="error";
@@ -157,13 +161,14 @@ export class CacheComponent implements OnInit  {
       });
     }
     addFilter(summary: CacheSummary){
-      if (summary.filter === null){
+      if (!summary.filter){
         summary.filter = new TextFilter();
         summary.filter.editMode = true;
       }
     }
 
     // api operations
+    // PUT
     editSummary(summary: CacheSummary){
       let index = this.summaries.indexOf(summary);
       if (summary.editMode === true){
@@ -200,6 +205,7 @@ export class CacheComponent implements OnInit  {
             this.message.show = true;
             summary.inProgress=false;
             summary.updatedOn = response.updatedOn;
+            summary.size = response.size;
           },
           (err: HttpErrorResponse) => {
             this.handleError(err);
@@ -214,7 +220,7 @@ export class CacheComponent implements OnInit  {
       }
     }
 
-    // delete
+    // DELETE
     removeSummary(element: CacheSummary){
       this.cacheApiService.deleteCacheSummary(element).subscribe(
         (response) => {
@@ -228,5 +234,28 @@ export class CacheComponent implements OnInit  {
         }
       );
     }
+
+  // post
+  add(event){
+    if (event.keyCode === 13){
+      this.createSummary();
+    }
+  }
+  createSummary(){
+  this.newSummary.lookupSummaries = [];
+  this.newSummary.params = [];
+  this.cacheApiService.postCacheSummary(this.newSummary).subscribe(
+    (response) => {
+      this.message.type = "info";
+      this.message.content = "Cache Summary created successfully";
+      this.message.show = true;
+      this.summaries.push(this.newSummary);
+      this.newSummary = new CacheSummary();
+    },
+    (err: HttpErrorResponse) => {
+      this.handleError(err);
+    }
+  );
+  }
 
 }
