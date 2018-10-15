@@ -1,0 +1,104 @@
+$primary-colour: #8dc540;
+$error-colour: #E4572E;
+$warning-colour: #FDE74C;
+
+.add-summary {
+  text-align: left;
+  display : flex;
+  align-items : center;
+}
+
+.add-summary-text {
+  margin: 10px;
+}
+
+.loading {
+  padding-left: 15%;
+  padding-right: 15%;
+  text-align: center;
+}
+
+.padding {
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 15px;
+}
+
+
+.container {
+    max-width: 100%;
+}
+
+.error-border {
+  border-color: $error-colour;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.error {
+  color: $error-colour;
+}
+
+.message {
+  display : flex;
+  align-items : center;
+  padding: 10px;
+}
+
+.thead-custom {
+  background-color: $primary-colour !important;
+  border-color: white !important;
+}
+
+.message-content {
+  margin-left: 20px;
+  display : flex;
+  align-items : center;
+  width:80%;
+}
+
+.card-body {
+  border-color: $primary-colour;
+  border-style: solid;
+  border-width: thin;
+}
+
+.read-only {
+  border: 1px;
+  border-color: white;
+  border-style: solid;
+  background: none;
+}
+
+.editMode {
+  border: 1px;
+  border-color: $primary-colour;
+  border-style: solid;
+  background: none;
+}
+
+.unsavedChanges {
+  border: 1px;
+  border-color: $warning-colour;
+  border-style: solid;
+  background: none;
+}
+
+.primary {
+  color: $primary-colour;
+  font-size: 20px;
+  margin-left: 10px;
+}
+
+.card-title {
+  padding-bottom: 15px;
+}
+
+.card {
+  border-style: none;
+}
+
+.thead-custom {
+  background-color: $primary-colour !important;
+  border-color: white !important;
+}

@@ -8,10 +8,12 @@ import {FormsModule} from '@angular/forms';
 import { AppComponent } from './app.component';
 import { ProfileComponent } from './profile/profile.component';
 import { CacheComponent } from './cache/cache.component';
+import { BundleComponent } from './bundles/bundle.component';
 
 const appRoutes: Routes = [
   { path: 'profiles', component: ProfileComponent }
   , { path: 'cache',      component: CacheComponent }
+  , {path: 'bundles', component: BundleComponent}
   // , { path: '**', component: PageNotFoundComponent }
 ];
 
@@ -21,7 +23,8 @@ const appRoutes: Routes = [
     AppComponent,
     ProfileComponent,
     ProfileComponent,
-    CacheComponent
+    CacheComponent,
+    BundleComponent
   ],
   imports: [
     BrowserModule,

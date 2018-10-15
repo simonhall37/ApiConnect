@@ -1,0 +1,58 @@
+<div class="container-fluid">
+  <div class="row text-center">
+    <div class="col-12">
+      <div class="card padding">
+        <div class="card-body row">
+          <div class="add-summary col-6">
+            <div class="container">
+              <div class="row">
+
+              </div>
+            </div>
+          </div>
+          <h4 *ngIf="loadingData">Loading...
+          <span class="fa-stack primary">
+            <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+            <i  class="fas fa-spinner fa-spin fa-stack-1x fa-inverse" aria-hidden="true"></i>
+          </span>
+        </h4>
+          <div class="message col" [hidden]="!message.show" [ngClass]="{'error-border': message.type==='error'}">
+            <span class="primary">
+              <i class="fas fa-2x" aria-hidden="true"
+                [ngClass]="{'fa-exclamation-triangle error': message.type==='error','fa-clipboard-check' : message.type==='info'}"
+              ></i>
+            </span>
+            <div class="message-content"> {{message.content}} </div>
+            <span class="primary" (click)="hideMessage()">
+              <i class="fas fa-times" aria-hidden="true"
+                  [ngClass]="{'error': message.type==='error'}"
+              ></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card padding row">
+        <table class="table table-hover">
+          <thead class="thead-dark thead-custom">
+            <th class="thead-custom">Name</th>
+            <th class="thead-custom">Num</th>
+            <th class="thead-custom">Start</th>
+            <th class="thead-custom">End</th>
+            <th class="thead-custom">Bundle</th>
+            <th class="thead-custom">Balance</th>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bundle of bundles">
+              <td>{{bundle.orgName}}</td>
+              <td>{{bundle.bundleNum}}</td>
+              <td>{{bundle.startDate}}</td>
+              <td>{{bundle.endDate}}</td>
+              <td>{{bundle.bundleSize}}</td>
+              <td>{{bundle.balance}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
