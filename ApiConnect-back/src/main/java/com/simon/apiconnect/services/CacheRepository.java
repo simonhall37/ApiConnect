@@ -33,7 +33,6 @@ public class CacheRepository {
 	}
 
 	public List<ApiCache> getCaches() {
-		log.info("GET all caches request");
 		if (this.caches.size() == 0)
 			loadAllFromDisk();
 		return this.caches;
