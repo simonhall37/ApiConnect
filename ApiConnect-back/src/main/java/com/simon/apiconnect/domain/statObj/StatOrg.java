@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -36,8 +38,9 @@ public class StatOrg {
 	private boolean unlimited;
 	private int currentBundleId;
 
+	@javax.persistence.OrderBy("startDate")
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
-	private Set<StatBundle> bundles = new HashSet<>();
+	private SortedSet<StatBundle> bundles = new TreeSet<>();
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
 	private Set<StatCorrection> corrections = new HashSet<>();
 
@@ -127,11 +130,10 @@ public class StatOrg {
 		for (StatBundle bundle : this.bundles) {
 			for (StatTicket t : bundle.getTickets()) {
 				if (toCorrect.get(t.getZenTicketId())!=null) {
-					bundle.setBalance(bundle.getBalance() - Math.round(100*t.getTotalEffort()/60)/100.0);
 					t.setTotalEffort(toCorrect.get(t.getZenTicketId()));
-					bundle.setBalance(bundle.getBalance() + Math.round(100*t.getTotalEffort()/60)/100.00);
 //					System.out.println("Corrected " + t.getZenTicketId());
 				}
+				bundle.updateBalance(t);
 			}
 		}
 	}
@@ -209,11 +211,11 @@ public class StatOrg {
 		this.currentBalance = currentBalance;
 	}
 
-	public Set<StatBundle> getBundles() {
+	public SortedSet<StatBundle> getBundles() {
 		return this.bundles;
 	}
 
-	public void setBundles(Set<StatBundle> bundles) {
+	public void setBundles(SortedSet<StatBundle> bundles) {
 		this.bundles = bundles;
 	}
 

@@ -1,6 +1,5 @@
 package com.simon.apiconnect.domain.statObj;
 
-import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -74,12 +73,21 @@ public class StatBundle implements Comparable<StatBundle> {
 	
 	public void wipeTickets() {
 		this.tickets.removeIf(t -> t.getZenTicketId()!=0L);
+		restoreBalance();
 	}
 	
 	public void addTicket(StatTicket ticket) {
 		this.tickets.add(ticket);
 		ticket.setBundleNum(this.getBundleNum());
+	}
+	
+	public void restoreBalance() {
+		this.balance = 0;
+	}
+	
+	public void updateBalance(StatTicket ticket) {
 		this.balance = this.balance + Math.round(100*ticket.getTotalEffort()/60)/100.0;
+//		System.out.println(this.orgName + " (" + ticket.getZenTicketId() + ") : " + this.balance + " --- " + ticket.getTotalEffort());
 	}
 	
 	/* getters and setters */
