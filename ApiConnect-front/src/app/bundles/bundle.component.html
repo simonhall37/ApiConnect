@@ -31,7 +31,7 @@
           </div>
         </div>
       </div>
-      <div class="card padding row">
+      <div class="card padding row card-body">
         <table class="table table-hover">
           <thead class="thead-dark thead-custom">
             <th class="thead-custom">Name</th>
@@ -40,18 +40,118 @@
             <th class="thead-custom">End</th>
             <th class="thead-custom">Bundle</th>
             <th class="thead-custom">Balance</th>
+            <th class="thead-custom">Active</th>
+            <th class="thead-custom"></th>
           </thead>
           <tbody>
-            <tr *ngFor="let bundle of bundles">
-              <td>{{bundle.orgName}}</td>
-              <td>{{bundle.bundleNum}}</td>
-              <td>{{bundle.startDate}}</td>
-              <td>{{bundle.endDate}}</td>
-              <td>{{bundle.bundleSize}}</td>
-              <td>{{bundle.balance}}</td>
+            <tr *ngFor="let bundle of bundles" (click)="loadTickets(bundle)">
+              <ng-container *ngIf="bundle.visible">
+                <td>{{bundle.orgName}}</td>
+                <td>{{bundle.bundleNum}}</td>
+                <td>{{bundle.startDate}}</td>
+                <td>{{bundle.endDate}}</td>
+                <td>{{bundle.bundleSize}}</td>
+                <td>{{bundle.balance}}</td>
+                <td>{{bundle.active}}</td>
+                <td>
+                  <span class="fa-stack fa-2x primary">
+                    <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                    <i class="fas fa-pencil-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                  </span>
+                  <span class="fa-stack fa-2x primary">
+                    <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+                    <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+                  </span>
+                </td>
+              </ng-container>
             </tr>
           </tbody>
         </table>
+      </div>
+      <div class="card padding" *ngIf="selectedOrg!=null">
+        <div class="card-body row table-controls">
+          <span class="fa-stack fa-2x primary" (click)="showAddBundleBoxes()">
+            <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+            <i class="fas fa-parachute-box fa-stack-1x fa-inverse" aria-hidden="true"></i>
+          </span>
+          <span class="fa-stack fa-2x primary">
+            <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+            <i class="fas fa-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+          </span>
+          <span class="fa-stack fa-2x primary">
+            <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+            <i class="fas fa-trash-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+          </span>
+          <div *ngIf="showNewBundle">
+            <input
+              class="add-summary-text col-3"
+              placeholder="start date..."
+              [(ngModel)]="newBundle.startDate"
+              (keypress)="addBundle($event)"
+            >
+            <input
+              class="add-summary-text col-3"
+              placeholder="end date..."
+              [(ngModel)]="newBundle.endDate"
+              (keypress)="addBundle($event)"
+            >
+            <input
+              class="add-summary-text col-3"
+              placeholder="size..."
+              [(ngModel)]="newBundle.bundleSize"
+              (keypress)="addBundle($event)"
+            >
+            <input
+              class="add-summary-text col-3"
+              placeholder="first ticket..."
+              [(ngModel)]="newBundle.firstTicketId"
+              (keypress)="addBundle($event)"
+            >
+            <input
+              class="add-summary-text col-3"
+              placeholder="last ticket..."
+              [(ngModel)]="newBundle.lastTicketId"
+              (keypress)="addBundle($event)"
+            >
+            <input
+              class="add-summary-text col-3"
+              placeholder="active..."
+              [(ngModel)]="newBundle.active"
+              (keypress)="addBundle($event)"
+            >
+          </div>
+        </div>
+        <div class="card-body row">
+          <div class="ticket-view">
+            <table class="table table-hover">
+              <thead class="thead-dark thead-custom">
+                <th class="thead-custom">Bundle</th>
+                <th class="thead-custom">Ticket</th>
+                <th class="thead-custom">Subject</th>
+                <th class="thead-custom">Created</th>
+                <th class="thead-custom">Status</th>
+                <th class="thead-custom">Effort</th>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let b of selectedOrg.bundles">
+                  <tr *ngFor="let ticket of b.tickets">
+                    <td>{{ticket.bundleNum}}</td>
+                    <td>{{ticket.zenTicketId}}</td>
+                    <td>{{ticket.subject}}</td>
+                    <td>{{ticket.createdDateTime}}</td>
+                    <td>{{ticket.status}}</td>
+                    <td>{{ticket.totalEffort}}</td>
+                  </tr>
+                  <tr class="empty-row">
+                    <td>{{b.bundleNum}}</td>
+                    <td colspan="3"></td>
+                    <td colspan="2">{{Math.floor(b.balance * 60)}} minutes, {{b.balance}} hours</td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>

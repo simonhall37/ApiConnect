@@ -8,6 +8,18 @@ $warning-colour: #FDE74C;
   align-items : center;
 }
 
+.ticket-view {
+  width: 100%;
+}
+
+.empty-row {
+  background-color: lighten($primary-colour, 30);
+}
+
+.table-controls {
+  margin-bottom: 10px;
+}
+
 .add-summary-text {
   margin: 10px;
 }
