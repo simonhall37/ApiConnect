@@ -4,6 +4,7 @@ import {Bundle} from './bundle';
 import {Ticket} from './ticket';
 import {BundleApiService} from './bundleApi.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Correction } from './correction';
 
 class Message {
   type: string;
@@ -28,13 +29,23 @@ export class BundleComponent implements OnInit  {
   Math = Math;
   newBundle: Bundle;
   showNewBundle: boolean = false;
+  newCorrection: Correction;
+  showNewCorrection: boolean;
 
   constructor(private bundleApiService: BundleApiService) {}
 
     ngOnInit() {
       this.newBundle = new Bundle();
+      this.newCorrection = new Correction();
+      this.getAll(this.reload);
+      this.message = new Message();
+    }
+
+    getAll(reload: boolean){
       this.loadingData = true;
-      this.bundleApiService.getAllOrgs(this.reload).subscribe(
+      this.bundles = [];
+      this.orgs = [];
+      this.bundleApiService.getAllOrgs(reload).subscribe(
         (orgs) => {
           orgs.forEach(
             (o) => {
@@ -50,10 +61,7 @@ export class BundleComponent implements OnInit  {
           this.loadingData = false;
         }
       );
-
-      this.message = new Message();
     }
-
     // general functions
     hideMessage(){
       this.message.show = false;
@@ -70,6 +78,33 @@ export class BundleComponent implements OnInit  {
     }
     showAddBundleBoxes(){
       this.showNewBundle = !this.showNewBundle;
+    }
+    showAddCorrectionBoxes(){
+      this.showNewCorrection = !this.showNewCorrection;
+    }
+    removeTicket(bundle: Bundle,ticket: Ticket){
+      let index = bundle.tickets.indexOf(ticket);
+      if (index>-1){
+        bundle.tickets.splice(index,1);
+        this.bundleApiService.putOrg(this.selectedOrg).subscribe(
+          (org: Org) => {
+            console.log(org);
+            this.updateOrg(org);
+            this.reloadBundles(org,true);
+            this.selectedOrg = org;
+          },
+          (err: HttpErrorResponse) => {
+            this.handleError(err);
+          }
+        );
+      }
+    }
+    addCorrection(event){
+      if (event.keyCode === 13){
+        this.newCorrection.zenOrgId = this.selectedOrg.zendeskId;
+        this.selectedOrg.corrections.push(this.newCorrection);
+        this.newCorrection = new Correction();
+      }
     }
     addBundle(event){
       if (event.keyCode === 13){
@@ -88,11 +123,7 @@ export class BundleComponent implements OnInit  {
           } else {
             this.newBundle.active = false;
           }
-          this.bundles.splice(this.getBundleInsertPoint(this.selectedOrg.zendeskId),0,this.newBundle);
-          let index = this.getOrgIndex(this.selectedOrg);
-          if (index>-1) {
-            this.orgs[index] = this.selectedOrg;
-          }
+          this.updateModel(this.selectedOrg);
           this.newBundle = new Bundle();
         }
         else {
@@ -102,7 +133,13 @@ export class BundleComponent implements OnInit  {
         }
       }
     }
-
+    updateModel(org: Org){
+      this.bundles.splice(this.getBundleInsertPoint(org.zendeskId),0,this.newBundle);
+      let index = this.getOrgIndex(org);
+      if (index>-1) {
+        this.orgs[index] = org;
+      }
+    }
     getOrgByZenId(zenId: number): Org {
       for (let o of this.orgs){
         if (o.zendeskId === zenId) {
@@ -148,15 +185,19 @@ export class BundleComponent implements OnInit  {
       }
     }
 
-    reloadBundles(org: Org){
+    reloadBundles(org: Org, select:boolean){
       org.bundles.forEach(
         (bundle) => {
           var ind = this.getBundleIndex(bundle);
           if (ind !== -1){
             for (let b of this.bundles){
-              b.selected = false;
+              if (!select) b.selected = false;
               if (this.bundles.indexOf(b) === ind){
                 console.log("Replacing bundle " + bundle.orgZenId + " - " + bundle.bundleNum);
+                if (select){
+                  bundle.visible = true;
+                  bundle.selected = true;
+                }
                 this.bundles[ind] = bundle;
               }
             }
@@ -194,10 +235,10 @@ export class BundleComponent implements OnInit  {
       else {
         var org = this.getOrgByZenId(bundle.orgZenId);
         if (org!=null){
-          this.bundleApiService.getgetOrgWithTickets(org.id,true).subscribe(
+          this.bundleApiService.getOrgWithTickets(org.id,true).subscribe(
             (owt) => {
               this.updateOrg(owt);
-              this.reloadBundles(owt);
+              this.reloadBundles(owt,false);
               this.selectedOrg = owt;
               this.hideAll();
               for (let updateSel of owt.bundles){

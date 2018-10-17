@@ -29,12 +29,15 @@ export class BundleApiService {
     else return this.httpClient.get<Org>(API+'/orgs/' + id);
   }
 
-  public getgetOrgWithTickets(id: number, recalc: boolean):Observable<Org>{
+  public getOrgWithTickets(id: number, recalc: boolean):Observable<Org>{
     if (recalc){
       return this.httpClient.get<Org>(API+'/orgs/' + id + "/tickets",{params : this.recalcParams});
     }
     else return this.httpClient.get<Org>(API+'/orgs/' + id + "/tickets");
   }
 
+  public putOrg(org: Org) {
+    return this.httpClient.put<Org>(API + '/orgs/' + org.id,org);
+  }
 
 }
