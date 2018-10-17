@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -127,6 +128,10 @@ public class BundleService {
 		return org;
 
 	}
+	
+	public StatOrg updateOrg(StatOrg org) {
+		return this.statOrgRepo.save(org);
+	}
 
 	public StatOrg populateOrgTickets(StatOrg org, boolean print) {
 
@@ -216,6 +221,17 @@ public class BundleService {
 		return out;
 	}
 
+	public StatOrg checkAndUpdate(StatOrg org) {
+		StatOrg existing = null;
+		try {
+			existing = this.statOrgRepo.findById(org.getId()).get();
+		} catch (NoSuchElementException e) {
+			log.warn("Can't update org as can't find original with id " + org.getId());
+			return existing;
+		}
+		return populateOrgTickets(org, false);
+	}
+	
 	public StatOrg getBundleWithName(long id,boolean updateTickets) {
 		StatOrg out = this.statOrgRepo.findById(id).get();
 		if (!updateTickets)	return updateBasicDetails(out);
