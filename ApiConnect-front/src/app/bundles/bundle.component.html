@@ -81,8 +81,32 @@
           </span>
           <span class="fa-stack fa-2x primary" (click)="showAddCorrectionBoxes()">
             <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
-            <i class="fas fa-plus fa-stack-1x fa-inverse" aria-hidden="true"></i>
+            <i class="fas fa-pencil-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
           </span>
+          <span class="fa-stack fa-2x primary" (click)="showAddTicketBoxes()">
+            <i class="fas fa-circle fa-stack-2x" aria-hidden="true"></i>
+            <i class="fas fa-ticket-alt fa-stack-1x fa-inverse" aria-hidden="true"></i>
+          </span>
+          <div *ngIf="showNewTicket">
+            <input
+              class="add-summary-text col-3"
+              placeholder="Subject..."
+              [(ngModel)]="newTicket.subject"
+              (keypress)="addTicket($event)"
+            >
+            <input
+              class="add-summary-text col-3"
+              placeholder="Created date..."
+              [(ngModel)]="newTicket.createdDateTime"
+              (keypress)="addTicket($event)"
+            >
+            <input
+              class="add-summary-text col-3"
+              placeholder="Effort..."
+              [(ngModel)]="newTicket.totalEffort"
+              (keypress)="addTicket($event)"
+            >
+          </div>
           <div *ngIf="showNewBundle">
             <input
               class="add-summary-text col-3"

@@ -1,5 +1,6 @@
 export class Ticket {
   zenTicketId: number;
+  zenOrgId: number;
   createdDateTime: string;
   bundleNum: number;
   subject: string;

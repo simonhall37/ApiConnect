@@ -31,12 +31,15 @@ export class BundleComponent implements OnInit  {
   showNewBundle: boolean = false;
   newCorrection: Correction;
   showNewCorrection: boolean;
+  newTicket: Ticket;
+  showNewTicket: boolean;
 
   constructor(private bundleApiService: BundleApiService) {}
 
     ngOnInit() {
       this.newBundle = new Bundle();
       this.newCorrection = new Correction();
+      this.newTicket = new Ticket();
       this.getAll(this.reload);
       this.message = new Message();
     }
@@ -78,31 +81,66 @@ export class BundleComponent implements OnInit  {
     }
     showAddBundleBoxes(){
       this.showNewBundle = !this.showNewBundle;
+      this.showNewCorrection = false;
+      this.showNewTicket = false;
     }
     showAddCorrectionBoxes(){
       this.showNewCorrection = !this.showNewCorrection;
+      this.showNewBundle = false;
+      this.showNewTicket = false;
+    }
+    showAddTicketBoxes(){
+      this.showNewTicket = !this.showNewTicket;
+      this.showNewBundle = false;
+      this.showNewCorrection = false;
     }
     removeTicket(bundle: Bundle,ticket: Ticket){
       let index = bundle.tickets.indexOf(ticket);
       if (index>-1){
         bundle.tickets.splice(index,1);
-        this.bundleApiService.putOrg(this.selectedOrg).subscribe(
-          (org: Org) => {
-            console.log(org);
-            this.updateOrg(org);
-            this.reloadBundles(org,true);
-            this.selectedOrg = org;
-          },
-          (err: HttpErrorResponse) => {
-            this.handleError(err);
+        this.updateOrgRequest();
+      }
+    }
+    updateOrgRequest(){
+      this.bundleApiService.putOrg(this.selectedOrg).subscribe(
+        (org: Org) => {
+          this.updateOrg(org);
+          this.reloadBundles(org,true);
+          this.selectedOrg = org;
+        },
+        (err: HttpErrorResponse) => {
+          this.handleError(err);
+        }
+      );
+    }
+    addTicket(event){
+      if (event.keyCode === 13){
+        this.newTicket.zenTicketId = 0;
+        this.newTicket.zenOrgId = this.selectedOrg.zendeskId;
+        var d1 = new Date(this.newTicket.createdDateTime);
+        for (let bundle of this.selectedOrg.bundles){
+          var start = new Date(bundle.startDate);
+          var end = new Date(bundle.endDate);
+          if (d1 > start && d1 < end){
+            this.newTicket.bundleNum = bundle.bundleNum;
+            bundle.tickets.push(this.newTicket);
           }
-        );
+        }
+        this.updateOrgRequest();
+        this.newTicket = new Ticket();
       }
     }
     addCorrection(event){
       if (event.keyCode === 13){
         this.newCorrection.zenOrgId = this.selectedOrg.zendeskId;
+        for (let c of this.selectedOrg.corrections){
+          if (c.zenTicketId == this.newCorrection.zenTicketId){
+            this.selectedOrg.corrections.splice(this.selectedOrg.corrections.indexOf(c),1);
+            console.log("removing duplicate");
+          }
+        }
         this.selectedOrg.corrections.push(this.newCorrection);
+        this.updateOrgRequest();
         this.newCorrection = new Correction();
       }
     }
@@ -123,7 +161,8 @@ export class BundleComponent implements OnInit  {
           } else {
             this.newBundle.active = false;
           }
-          this.updateModel(this.selectedOrg);
+          // this.updateModel(this.selectedOrg);
+          this.updateOrgRequest();
           this.newBundle = new Bundle();
         }
         else {
